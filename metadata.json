@@ -1,0 +1,8 @@
+{
+  "name": "군산 라이프 (Gunsan Life)",
+  "description": "군산 시민을 위한 필수 앱. 군산뉴스, 날씨, 긴급 전화번호 및 AI 기반 지역 생활 정보를 제공합니다.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ]
+}
