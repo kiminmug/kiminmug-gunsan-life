@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NEWS_CATEGORIES, FALLBACK_NEWS_DATA, VIDEO_NEWS_DATA, KCN_YOUTUBE_URL, TODAY_GUNSAN_RSS_URL } from '../constants';
-import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2 } from 'lucide-react';
+import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { NewsItem } from '../types';
 
 const NewsFeed: React.FC = () => {
@@ -9,11 +9,22 @@ const NewsFeed: React.FC = () => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Category Sub-page State
+  const [viewMode, setViewMode] = useState<'LIST' | 'CATEGORY_DETAIL'>('LIST');
+  const [selectedCategory, setSelectedCategory] = useState<{ name: string, url: string, image: string } | null>(null);
+
   const fetchRSS = async () => {
     setLoading(true);
     try {
+      let rssUrl = '';
+      if (activePlatform === 'ALL') {
+        rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
+      } else {
+        rssUrl = TODAY_GUNSAN_RSS_URL;
+      }
+
       // Using AllOrigins as a proxy to bypass CORS for the HTTP RSS feed
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`);
+      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
 
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
@@ -25,13 +36,28 @@ const NewsFeed: React.FC = () => {
       const items = xmlDoc.querySelectorAll('item');
 
       const parsedNews: NewsItem[] = Array.from(items).map((item, index) => {
-        const title = item.querySelector('title')?.textContent || '제목 없음';
+        let title = item.querySelector('title')?.textContent || '제목 없음';
         const link = item.querySelector('link')?.textContent || '#';
-        const author = item.querySelector('author')?.textContent || '투데이군산';
+
+        let author = 'Unknown';
+        let displayDate = '최근';
+
+        if (activePlatform === 'ALL') {
+          const sourceElem = item.querySelector('source');
+          author = sourceElem?.textContent || 'Google News';
+          // Google News often puts source in title "Title - Source"
+          const lastDashIndex = title.lastIndexOf(' - ');
+          if (lastDashIndex !== -1) {
+            author = title.substring(lastDashIndex + 3);
+            title = title.substring(0, lastDashIndex);
+          }
+        } else {
+          author = item.querySelector('author')?.textContent || '투데이군산';
+        }
+
         const pubDateStr = item.querySelector('pubDate')?.textContent;
         const description = item.querySelector('description')?.textContent || '';
 
-        let displayDate = '최근';
         if (pubDateStr) {
           const dateObj = new Date(pubDateStr);
           if (!isNaN(dateObj.getTime())) {
@@ -57,7 +83,7 @@ const NewsFeed: React.FC = () => {
           title: title,
           category: '뉴스',
           source: author,
-          platform: 'TodayGunsan',
+          platform: activePlatform === 'ALL' ? 'Google' : 'TodayGunsan',
           originalUrl: link,
           date: displayDate,
           summary: textSummary,
@@ -68,22 +94,68 @@ const NewsFeed: React.FC = () => {
       setNewsItems(parsedNews);
     } catch (err) {
       console.error("RSS Fetch Error:", err);
-      // fallback if needed, or empty
-      setNewsItems([]);
+      if (activePlatform === 'ALL') {
+        setNewsItems(FALLBACK_NEWS_DATA);
+      } else {
+        setNewsItems([]);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRSS();
-  }, []);
+    if (viewMode === 'LIST') {
+      fetchRSS();
+    }
+  }, [activePlatform, viewMode]);
 
   const handleOpenExternal = (url: string) => {
     window.open(url, '_blank');
   };
 
+  const handleCategoryClick = (cat: { name: string, url: string, image: string }) => {
+    setSelectedCategory(cat);
+    setViewMode('CATEGORY_DETAIL');
+  };
+
+  const handleBackToList = () => {
+    setViewMode('LIST');
+    setSelectedCategory(null);
+  };
+
   const displayItems = activePlatform === 'KCN' ? VIDEO_NEWS_DATA : newsItems;
+
+  if (viewMode === 'CATEGORY_DETAIL' && selectedCategory) {
+    return (
+      <div className="bg-white min-h-screen pb-20 flex flex-col">
+        <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-20 flex items-center gap-2">
+          <button onClick={handleBackToList} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <ArrowLeft size={20} className="text-gray-700" />
+          </button>
+          <h2 className="text-lg font-bold text-gray-900">{selectedCategory.name}</h2>
+        </div>
+
+        <div className="p-4 flex-1 flex flex-col items-center justify-center gap-6 animate-[fadeIn_0.3s_ease-out]">
+          <div className="w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-100">
+            <img src={selectedCategory.image} alt={selectedCategory.name} className="w-full h-full object-cover" />
+          </div>
+
+          <div className="text-center space-y-2">
+            <h3 className="text-xl font-bold text-gray-800">{selectedCategory.name} 바로가기</h3>
+            <p className="text-gray-500 text-sm">아래 버튼을 눌러 뉴스를 확인하세요.</p>
+          </div>
+
+          <button
+            onClick={() => handleOpenExternal(selectedCategory.url)}
+            className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold shadow-md hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            뉴스 페이지로 이동 <ExternalLink size={18} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pb-20 bg-white min-h-screen">
@@ -94,7 +166,7 @@ const NewsFeed: React.FC = () => {
           {NEWS_CATEGORIES.map((cat) => (
             <button
               key={cat.name}
-              onClick={() => handleOpenExternal(cat.url)}
+              onClick={() => handleCategoryClick(cat)}
               className="flex flex-col items-center gap-2 group"
             >
               <div className="w-full aspect-video bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden relative group-hover:border-blue-400 transition-colors">
@@ -178,7 +250,9 @@ const NewsFeed: React.FC = () => {
                     }`}>
                     {news.source}
                   </span>
-                  <span className="text-gray-400">{news.date}</span>
+                  <span className="flex items-center gap-1">
+                    <Calendar size={10} /> {news.date}
+                  </span>
                   <span className="w-px h-2.5 bg-gray-300"></span>
                   <span className="flex items-center gap-1">
                     {activePlatform === 'KCN' ? '유튜브에서 보기' : '원문 보기'}
