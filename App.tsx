@@ -219,8 +219,7 @@ const App: React.FC = () => {
           onMarkAsRead={markAsRead}
           onClearAll={clearAllNotifications}
         />
-        onClearAll={clearAllNotifications}
-        />
+
 
         <DailyBriefingModal
           isOpen={showBriefingModal}
