@@ -1,103 +1,98 @@
 
 import React, { useState, useEffect } from 'react';
-import { Download, Share, PlusSquare, X, Smartphone } from 'lucide-react';
+import { Download, HelpCircle, ExternalLink } from 'lucide-react';
+import InstallGuideModal from './InstallGuideModal';
 
 const InstallPWA: React.FC = () => {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-    const [showIOSInstructions, setShowIOSInstructions] = useState(false);
-    const [isIOS, setIsIOS] = useState(false);
+    const [showGuide, setShowGuide] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
+    const [isInAppBrowser, setIsInAppBrowser] = useState(false);
+    const [activeGuideTab, setActiveGuideTab] = useState<'ANDROID' | 'IOS' | 'KAKAOTALK'>('ANDROID');
 
     useEffect(() => {
-        // Check if running on iOS
-        const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-        setIsIOS(iOS);
-
-        // Check if already installed/standalone
+        // 1. Check if already installed
         const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
         setIsStandalone(isStandaloneMode);
 
-        // Capture install prompt event
+        // 2. Capture install prompt event (Android/Chrome)
         const handler = (e: any) => {
             e.preventDefault();
             setDeferredPrompt(e);
         };
-
         window.addEventListener('beforeinstallprompt', handler);
+
+        // 3. Detect In-App Browser (Kakao, Naver, etc.)
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isKakao = userAgent.includes('kakaotalk');
+        const isInApp = isKakao || userAgent.includes('naver') || userAgent.includes('instagram') || userAgent.includes('line');
+
+        setIsInAppBrowser(isInApp);
+        if (isKakao) setActiveGuideTab('KAKAOTALK');
+        else if (/iphone|ipad|ipod/.test(userAgent)) setActiveGuideTab('IOS');
+        else setActiveGuideTab('ANDROID');
+
+        // 4. Auto-redirect attempt for Android KakaoTalk to Chrome
+        if (isKakao && /android/i.test(userAgent)) {
+            // This intent trick tries to open the current URL in an external browser (Chrome)
+            // Not always guaranteed but worth a shot. 
+            // We won't auto-trigger to avoid being annoying, but we will use it on button click.
+        }
 
         return () => window.removeEventListener('beforeinstallprompt', handler);
     }, []);
 
-    const handleInstallClick = async () => {
-        if (deferredPrompt) {
+    const handleMainButtonClick = async () => {
+        if (isInAppBrowser) {
+            // Attempt to break out of in-app browser on Android
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (/android/i.test(userAgent)) {
+                const currentUrl = window.location.href.replace(/^https?:\/\//, '');
+                // Intent scheme to open in Chrome
+                window.location.href = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+            } else {
+                setShowGuide(true);
+            }
+        } else if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
                 setDeferredPrompt(null);
             }
-        } else if (isIOS) {
-            setShowIOSInstructions(true);
         } else {
-            // Fallback for desktop/other browsers not supporting the event directly or already installed logic
-            alert("브라우저 메뉴에서 '앱 설치' 또는 '홈 화면에 추가'를 선택해주세요.");
+            setShowGuide(true);
         }
     };
 
-    if (isStandalone) return null; // Don't show if already installed
+    if (isStandalone) return null;
 
     return (
         <>
-            <button
-                onClick={handleInstallClick}
-                className="flex items-center justify-center gap-2 w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-xl shadow-md active:scale-95 transition-all mt-6"
-            >
-                <Download size={20} />
-                {isIOS ? '앱 다운로드 (iPhone)' : '앱 설치하기 / 홈 화면 추가'}
-            </button>
+            <div className="flex gap-2 mt-6">
+                <button
+                    onClick={handleMainButtonClick}
+                    className={`flex-1 flex items-center justify-center gap-2 font-bold py-3 px-4 rounded-xl shadow-md active:scale-95 transition-all
+            ${isInAppBrowser ? 'bg-yellow-400 text-yellow-900 border border-yellow-500' : 'bg-gray-900 text-white'}
+          `}
+                >
+                    {isInAppBrowser ? <ExternalLink size={20} /> : <Download size={20} />}
+                    {isInAppBrowser ? '다른 브라우저로 열기' : '앱 설치하기 / 홈 화면 추가'}
+                </button>
 
-            {/* iOS Instructions Modal */}
-            {showIOSInstructions && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-[fadeIn_0.3s_ease-out]">
-                    <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden relative animate-[slideUp_0.3s_ease-out]">
-                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                <Smartphone size={20} className="text-blue-600" /> iPhone 설치 방법
-                            </h3>
-                            <button onClick={() => setShowIOSInstructions(false)} className="p-1 rounded-full hover:bg-gray-200">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <p className="text-gray-600 text-sm">아이폰은 다음 방법으로 홈 화면에 추가할 수 있습니다.</p>
+                <button
+                    onClick={() => setShowGuide(true)}
+                    className="flex items-center justify-center bg-gray-100 text-gray-600 p-3 rounded-xl hover:bg-gray-200 transition-colors"
+                    aria-label="설치 방법 보기"
+                >
+                    <HelpCircle size={24} />
+                </button>
+            </div>
 
-                            <div className="flex items-start gap-4 p-3 bg-blue-50 rounded-xl">
-                                <div className="bg-white p-2 rounded-lg shadow-sm">
-                                    <Share size={24} className="text-blue-600" />
-                                </div>
-                                <div className="text-sm">
-                                    <span className="font-bold block text-gray-800">1. 공유 버튼 터치</span>
-                                    <span className="text-gray-500">브라우저 하단의 공유 아이콘을 눌러주세요.</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-4 p-3 bg-blue-50 rounded-xl">
-                                <div className="bg-white p-2 rounded-lg shadow-sm">
-                                    <PlusSquare size={24} className="text-blue-600" />
-                                </div>
-                                <div className="text-sm">
-                                    <span className="font-bold block text-gray-800">2. 홈 화면에 추가</span>
-                                    <span className="text-gray-500">메뉴 목록에서 '홈 화면에 추가'를 선택하세요.</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-4 bg-gray-50 text-center">
-                            <button onClick={() => setShowIOSInstructions(false)} className="text-blue-600 font-bold text-sm">
-                                닫기
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <InstallGuideModal
+                isOpen={showGuide}
+                onClose={() => setShowGuide(false)}
+                defaultTab={activeGuideTab}
+            />
         </>
     );
 };
