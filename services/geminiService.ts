@@ -3,11 +3,11 @@ import { GoogleGenAI, Chat, GenerateContentResponse, Type } from "@google/genai"
 import { ChatMessage, AppNotification } from '../types';
 
 const getClient = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
   if (!apiKey) {
-    console.warn("API_KEY is missing from environment variables.");
+    console.warn("API_KEY is missing (VITE_GEMINI_API_KEY).");
   }
-  return new GoogleGenAI({ apiKey: apiKey });
+  return new GoogleGenAI({ apiKey: apiKey || "" });
 };
 
 export const createChatSession = (): Chat => {
@@ -175,7 +175,7 @@ export const getDailyBriefing = async (): Promise<string> => {
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
-            contents: "오늘 군산의 실시간 날씨와 현재 이슈를 확인하고, 군산 시민에게 건네는 따뜻한 아침 인사말을 50자 이내로 작성해줘. 현재 실제 상황을 반영하고 사투리를 약간 섞어줘.",
+            contents: "오늘 군산의 실시간 날씨와 현재 이슈를 확인하고, 군산 시민에게 건네는 따뜻한 아침 인사말을 다음 형식으로 상세하게(300자 내외) 작성해줘. \\n\\n형식:\\n1. [날짜 및 인사]\\n2. * **실시간 날씨:** [온도, 상태, 특이사항]\\n3. * **현재 이슈:** [군산 관련 뉴스나 생활 정보]\\n4. * **[군산 시민을 위한 아침 인사]:** [사투리를 섞은 따뜻한 말]",
             config: { tools: [{ googleSearch: {} }] }
         });
         return response.text || "오늘도 좋은 하루 되세요!";
