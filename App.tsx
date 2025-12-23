@@ -112,6 +112,12 @@ const App: React.FC = () => {
                     <Bell size={16} />
                   </span>
                   <h2 className="font-bold text-gray-800">오늘의 한마디</h2>
+                  <button
+                    onClick={() => setShowBriefingModal(true)}
+                    className="ml-auto text-xs bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-bold hover:bg-blue-100 transition-colors active:scale-95"
+                  >
+                    다시 보기
+                  </button>
                 </div>
                 <p className="text-gray-600 leading-relaxed text-[15px] font-medium whitespace-pre-line line-clamp-3">
                   "{briefing}"

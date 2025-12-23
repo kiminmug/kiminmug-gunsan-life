@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Cloud, CloudRain, CloudSnow, CloudSun, RefreshCw, AlertCircle, Info } from 'lucide-react';
+import { Sun, Cloud, CloudRain, CloudSnow, CloudSun, RefreshCw, AlertCircle, Info, Waves, Anchor } from 'lucide-react';
 import { getRealtimeWeather } from '../services/geminiService';
 import { DailyForecast } from '../types';
+import { MOCK_TIDES } from '../constants';
 
 const getWeatherIcon = (condition: string, size: number = 24, className: string = '') => {
   const cond = condition?.toLowerCase() || '';
-  if (cond.includes('sunny') || cond.includes('clear') || cond.includes('맑음')) 
+  if (cond.includes('sunny') || cond.includes('clear') || cond.includes('맑음'))
     return <Sun size={size} className={`text-orange-400 ${className}`} />;
-  if (cond.includes('partly') || cond.includes('구름조금')) 
+  if (cond.includes('partly') || cond.includes('구름조금'))
     return <CloudSun size={size} className={`text-yellow-400 ${className}`} />;
-  if (cond.includes('cloud') || cond.includes('흐림')) 
+  if (cond.includes('cloud') || cond.includes('흐림'))
     return <Cloud size={size} className={`text-gray-400 ${className}`} />;
-  if (cond.includes('rain') || cond.includes('비')) 
+  if (cond.includes('rain') || cond.includes('비'))
     return <CloudRain size={size} className={`text-blue-400 ${className}`} />;
-  if (cond.includes('snow') || cond.includes('눈')) 
+  if (cond.includes('snow') || cond.includes('눈'))
     return <CloudSnow size={size} className={`text-sky-300 ${className}`} />;
-  
+
   return <Sun size={size} className={`text-orange-400 ${className}`} />;
 };
 
@@ -54,7 +55,7 @@ const WeatherWidget: React.FC = () => {
       <div className="p-4 flex flex-col items-center justify-center min-h-[400px] text-center">
         <AlertCircle size={40} className="text-red-400 mb-4" />
         <p className="text-gray-600 mb-4">날씨 정보를 가져오지 못했습니다.</p>
-        <button 
+        <button
           onClick={fetchWeather}
           className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-md active:scale-95 transition-transform"
         >
@@ -65,6 +66,7 @@ const WeatherWidget: React.FC = () => {
   }
 
   const { current, forecast } = weather;
+  const todayTide = MOCK_TIDES[0];
 
   return (
     <div className="p-4 space-y-6 pb-20 animate-[fadeIn_0.4s_ease-out]">
@@ -80,22 +82,21 @@ const WeatherWidget: React.FC = () => {
                 실시간 데이터 (Google Search)
               </p>
             </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md border ${
-              current.dustStatus?.includes('좋음') ? 'bg-green-500/20 border-green-400' : 
-              current.dustStatus?.includes('나쁨') ? 'bg-red-500/20 border-red-400' : 'bg-yellow-500/20 border-yellow-400'
-            }`}>
+            <div className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md border ${current.dustStatus?.includes('좋음') ? 'bg-green-500/20 border-green-400' :
+                current.dustStatus?.includes('나쁨') ? 'bg-red-500/20 border-red-400' : 'bg-yellow-500/20 border-yellow-400'
+              }`}>
               미세먼지 {current.dustStatus}
             </div>
           </div>
-          
+
           <div className="flex items-center mt-8">
             <div className="text-7xl font-bold tracking-tighter drop-shadow-md">{current.temp}°</div>
             <div className="ml-6 flex flex-col items-start">
-               <span className="text-4xl drop-shadow-sm">{getWeatherIcon(current.condition, 40, "text-white")}</span>
-               <span className="text-xl font-bold mt-2">{current.description}</span>
+              <span className="text-4xl drop-shadow-sm">{getWeatherIcon(current.condition, 40, "text-white")}</span>
+              <span className="text-xl font-bold mt-2">{current.description}</span>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-2 mt-10 bg-black/10 rounded-2xl p-4 backdrop-blur-sm border border-white/5">
             <div className="flex flex-col items-center">
               <span className="text-[10px] text-blue-200 uppercase tracking-wider font-bold">습도</span>
@@ -111,7 +112,7 @@ const WeatherWidget: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Decorative circle */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl"></div>
@@ -120,14 +121,14 @@ const WeatherWidget: React.FC = () => {
       {/* 3-Day Forecast */}
       <div>
         <div className="flex justify-between items-center mb-4 px-1">
-            <h3 className="font-bold text-gray-800 flex items-center gap-1.5">
-                <Info size={16} className="text-blue-500" /> 주간 예보
-            </h3>
-            <button onClick={fetchWeather} className="text-gray-400 hover:text-blue-500 transition-colors">
-                <RefreshCw size={14} />
-            </button>
+          <h3 className="font-bold text-gray-800 flex items-center gap-1.5">
+            <Info size={16} className="text-blue-500" /> 주간 예보
+          </h3>
+          <button onClick={fetchWeather} className="text-gray-400 hover:text-blue-500 transition-colors">
+            <RefreshCw size={14} />
+          </button>
         </div>
-        
+
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {forecast.map((day: any, idx: number) => (
             <div key={idx} className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
@@ -135,15 +136,15 @@ const WeatherWidget: React.FC = () => {
                 <p className="font-bold text-gray-800">{day.day}</p>
                 <p className="text-[10px] text-gray-400 font-medium">{day.date}</p>
               </div>
-              
+
               <div className="flex items-center gap-3 flex-1 justify-center">
                 {getWeatherIcon(day.condition, 24)}
                 <div className="flex flex-col">
-                    <span className="text-xs font-bold text-gray-600 leading-tight">{day.condition}</span>
-                    <span className="text-[10px] font-bold text-blue-500">{day.rainProbability > 0 ? `강수 ${day.rainProbability}%` : ''}</span>
+                  <span className="text-xs font-bold text-gray-600 leading-tight">{day.condition}</span>
+                  <span className="text-[10px] font-bold text-blue-500">{day.rainProbability > 0 ? `강수 ${day.rainProbability}%` : ''}</span>
                 </div>
               </div>
-              
+
               <div className="flex gap-4 w-20 justify-end items-baseline">
                 <span className="text-gray-400 text-xs font-medium">{day.low}°</span>
                 <span className="font-bold text-gray-800 text-base">{day.high}°</span>
@@ -154,17 +155,46 @@ const WeatherWidget: React.FC = () => {
       </div>
 
       {weather.sourceUrl && (
-          <div className="text-center">
-              <a 
-                href={weather.sourceUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-[10px] text-gray-400 underline hover:text-blue-500"
-              >
-                  날씨 정보 출처 확인 (Google)
-              </a>
-          </div>
+        <div className="text-center">
+          <a
+            href={weather.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-gray-400 underline hover:text-blue-500"
+          >
+            날씨 정보 출처 확인 (Google)
+          </a>
+        </div>
       )}
+
+      {/* Tide Info Section - Moved from LifeHub */}
+      <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden pt-10">
+        <h3 className="font-bold text-lg mb-1 flex items-center gap-2 relative z-10">
+          <Waves size={24} /> 오늘 군산항 물때
+        </h3>
+        <p className="text-blue-100 text-sm mb-6 relative z-10">{todayTide.date} ({todayTide.day})</p>
+
+        <div className="grid grid-cols-2 gap-4 relative z-10">
+          {todayTide.tides.map((tide, idx) => (
+            <div key={idx} className="bg-white/10 backdrop-blur rounded-lg p-3 border border-white/20">
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${tide.type === 'High' ? 'bg-red-400/80' : 'bg-blue-800/50'}`}>
+                  {tide.type === 'High' ? '만조 (고)' : '간조 (저)'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold tracking-wider">{tide.time}</div>
+              <div className="text-sm text-blue-100 mt-1">물높이 {tide.height}cm</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 text-[10px] text-blue-200 text-center relative z-10">
+          ※ 낚시 및 해루질 시 안전에 유의하세요.
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-800/20 rounded-full -ml-8 -mb-8 blur-xl"></div>
+      </div>
     </div>
   );
 };
