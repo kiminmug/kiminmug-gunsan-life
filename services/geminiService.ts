@@ -34,13 +34,13 @@ export const createChatSession = (): Chat => {
 };
 
 export const sendMessageToGemini = async (
-  chat: Chat, 
+  chat: Chat,
   message: string,
   location?: { lat: number, lng: number }
 ): Promise<string> => {
   try {
     const requestOptions: any = { message };
-    
+
     if (location) {
       requestOptions.config = {
         toolConfig: {
@@ -56,7 +56,7 @@ export const sendMessageToGemini = async (
 
     const response: GenerateContentResponse = await chat.sendMessage(requestOptions);
     let responseText = response.text || "죄송해유, 지금은 대답하기가 좀 거시기하네요. 잠시 뒤에 다시 물어봐주세요.";
-    
+
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (groundingChunks) {
       const links: string[] = [];
@@ -65,12 +65,12 @@ export const sendMessageToGemini = async (
       groundingChunks.forEach((chunk: any) => {
         if (chunk.web?.uri && chunk.web?.title) {
           if (!seenLinks.has(chunk.web.uri)) {
-             links.push(`- [${chunk.web.title}](${chunk.web.uri})`);
-             seenLinks.add(chunk.web.uri);
+            links.push(`- [${chunk.web.title}](${chunk.web.uri})`);
+            seenLinks.add(chunk.web.uri);
           }
         }
       });
-      
+
       if (links.length > 0) {
         responseText += "\n\n**관련 정보:**\n" + links.join("\n");
       }
@@ -171,15 +171,15 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
 };
 
 export const getDailyBriefing = async (): Promise<string> => {
-    const ai = getClient();
-    try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: "오늘 군산의 실시간 날씨와 현재 이슈를 확인하고, 군산 시민에게 건네는 따뜻한 아침 인사말을 다음 형식으로 상세하게(300자 내외) 작성해줘. \\n\\n형식:\\n1. [날짜 및 인사]\\n2. * **실시간 날씨:** [온도, 상태, 특이사항]\\n3. * **현재 이슈:** [군산 관련 뉴스나 생활 정보]\\n4. * **[군산 시민을 위한 아침 인사]:** [사투리를 섞은 따뜻한 말]",
-            config: { tools: [{ googleSearch: {} }] }
-        });
-        return response.text || "오늘도 좋은 하루 되세요!";
-    } catch (e) {
-        return "오늘도 활기찬 군산의 하루가 시작되었습니다!";
-    }
+  const ai = getClient();
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: "오늘 군산의 실시간 날씨와 현재 이슈를 확인하고, 군산 시민에게 건네는 따뜻한 아침 인사말을 다음 형식으로 상세하게(300자 내외) 작성해줘. \\n\\n형식:\\n1. **[날짜]:** YYYY년 MM월 DD일 요일 (음력 MM월 DD일)\\n2. * **실시간 날씨:** [온도, 상태, 특이사항]\\n3. * **현재 이슈:** [군산 관련 뉴스나 생활 정보]\\n4. * **[군산 시민을 위한 아침 인사]:** [사투리를 섞은 따뜻한 말]",
+      config: { tools: [{ googleSearch: {} }] }
+    });
+    return response.text || "오늘도 좋은 하루 되세요!";
+  } catch (e) {
+    return "오늘도 활기찬 군산의 하루가 시작되었습니다!";
+  }
 }
