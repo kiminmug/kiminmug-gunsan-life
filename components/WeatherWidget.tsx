@@ -66,7 +66,7 @@ const WeatherWidget: React.FC = () => {
   }
 
   const { current, forecast } = weather;
-  const todayTide = MOCK_TIDES[0];
+
 
   return (
     <div className="p-4 space-y-6 pb-20 animate-[fadeIn_0.4s_ease-out]">
@@ -83,7 +83,7 @@ const WeatherWidget: React.FC = () => {
               </p>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md border ${current.dustStatus?.includes('좋음') ? 'bg-green-500/20 border-green-400' :
-                current.dustStatus?.includes('나쁨') ? 'bg-red-500/20 border-red-400' : 'bg-yellow-500/20 border-yellow-400'
+              current.dustStatus?.includes('나쁨') ? 'bg-red-500/20 border-red-400' : 'bg-yellow-500/20 border-yellow-400'
               }`}>
               미세먼지 {current.dustStatus}
             </div>
@@ -168,32 +168,35 @@ const WeatherWidget: React.FC = () => {
       )}
 
       {/* Tide Info Section - Moved from LifeHub */}
-      <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden pt-10">
-        <h3 className="font-bold text-lg mb-1 flex items-center gap-2 relative z-10">
-          <Waves size={24} /> 오늘 군산항 물때
-        </h3>
-        <p className="text-blue-100 text-sm mb-6 relative z-10">{todayTide.date} ({todayTide.day})</p>
+      <div className="space-y-4">
+        {MOCK_TIDES.map((tideInfo, dayIdx) => (
+          <div key={dayIdx} className={`rounded-2xl p-6 text-white shadow-lg relative overflow-hidden ${dayIdx === 0 ? 'bg-gradient-to-br from-blue-500 to-cyan-600' : 'bg-white border border-gray-100'}`}>
+            <h3 className={`font-bold text-lg mb-1 flex items-center gap-2 relative z-10 ${dayIdx === 0 ? 'text-white' : 'text-gray-800'}`}>
+              <Waves size={24} className={dayIdx === 0 ? 'text-white' : 'text-blue-500'} />
+              {dayIdx === 0 ? '오늘 군산항 물때' : `${tideInfo.day} 물때표`}
+            </h3>
+            <p className={`text-sm mb-4 relative z-10 ${dayIdx === 0 ? 'text-blue-100' : 'text-gray-500'}`}>{tideInfo.date} ({tideInfo.day})</p>
 
-        <div className="grid grid-cols-2 gap-4 relative z-10">
-          {todayTide.tides.map((tide, idx) => (
-            <div key={idx} className="bg-white/10 backdrop-blur rounded-lg p-3 border border-white/20">
-              <div className="flex items-center justify-between mb-1">
-                <span className={`text-xs font-bold px-2 py-0.5 rounded ${tide.type === 'High' ? 'bg-red-400/80' : 'bg-blue-800/50'}`}>
-                  {tide.type === 'High' ? '만조 (고)' : '간조 (저)'}
-                </span>
-              </div>
-              <div className="text-2xl font-bold tracking-wider">{tide.time}</div>
-              <div className="text-sm text-blue-100 mt-1">물높이 {tide.height}cm</div>
+            <div className="grid grid-cols-2 gap-3 relative z-10">
+              {tideInfo.tides.map((tide, idx) => (
+                <div key={idx} className={`rounded-lg p-3 border ${dayIdx === 0 ? 'bg-white/10 backdrop-blur border-white/20' : 'bg-gray-50 border-gray-100'}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${tide.type === 'High' ? 'bg-red-400/80 text-white' : 'bg-blue-800/50 text-white'}`}>
+                      {tide.type === 'High' ? '만조 (고)' : '간조 (저)'}
+                    </span>
+                  </div>
+                  <div className={`text-xl font-bold tracking-wider ${dayIdx === 0 ? 'text-white' : 'text-gray-800'}`}>{tide.time}</div>
+                  <div className={`text-xs mt-1 ${dayIdx === 0 ? 'text-blue-100' : 'text-gray-500'}`}>물높이 {tide.height}cm</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-4 text-[10px] text-blue-200 text-center relative z-10">
-          ※ 낚시 및 해루질 시 안전에 유의하세요.
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-800/20 rounded-full -ml-8 -mb-8 blur-xl"></div>
+            {dayIdx === 0 && (
+              <div className="mt-4 text-[10px] text-blue-200 text-center relative z-10">
+                ※ 낚시 및 해루질 시 안전에 유의하세요.
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

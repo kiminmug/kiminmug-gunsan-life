@@ -12,6 +12,7 @@ import { AppTab, AppNotification } from './types';
 import DailyBriefingModal from './components/DailyBriefingModal';
 import { getDailyBriefing, getRealtimeAlerts } from './services/geminiService';
 import { Sun, Anchor, Newspaper, MessageCircle, Bell, Loader2, CheckCircle2 } from 'lucide-react';
+import InstallPWA from './components/InstallPWA';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.HOME);
@@ -148,7 +149,7 @@ const App: React.FC = () => {
                   <Sun size={20} />
                 </div>
                 <div>
-                  <span className="block font-bold text-gray-800 text-lg">날씨 예보</span>
+                  <span className="block font-bold text-gray-800 text-lg">날씨 & 물때</span>
                   <span className="text-xs text-gray-500">실시간 기상 특보</span>
                 </div>
               </button>
@@ -161,8 +162,8 @@ const App: React.FC = () => {
                   <Anchor size={20} />
                 </div>
                 <div>
-                  <span className="block font-bold text-gray-800 text-lg">생활/물때</span>
-                  <span className="text-xs text-gray-500">물때 및 긴급전화</span>
+                  <span className="block font-bold text-gray-800 text-lg">생활/긴급</span>
+                  <span className="text-xs text-gray-500">긴급전화 및 꿀팁</span>
                 </div>
               </button>
 
@@ -178,7 +179,10 @@ const App: React.FC = () => {
                   <span className="text-xs text-gray-400">무엇이든 물어보세요</span>
                 </div>
               </button>
+              </button>
             </div>
+            
+            <InstallPWA />
 
             <div className="mt-auto pt-8 text-center pb-4">
               <p className="text-[10px] text-gray-400">
@@ -186,57 +190,57 @@ const App: React.FC = () => {
                 제공되는 정보는 AI가 검색한 결과로 실제와 다를 수 있습니다.
               </p>
             </div>
-          </div>
+          </div >
         );
       case AppTab.NEWS:
-        return <NewsFeed />;
+return <NewsFeed />;
       case AppTab.WEATHER:
-        return <WeatherWidget />;
+return <WeatherWidget />;
       case AppTab.INFO:
-        return <LifeHub />;
+return <LifeHub />;
       case AppTab.CHAT:
-        return <AiConcierge />;
+return <AiConcierge />;
       default:
-        return null;
+return null;
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      <Navbar
-        activeTab={activeTab}
-        unreadCount={unreadCount}
-        onToggleNotifications={() => setIsNotifCenterOpen(!isNotifCenterOpen)}
+return (
+  <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <Navbar
+      activeTab={activeTab}
+      unreadCount={unreadCount}
+      onToggleNotifications={() => setIsNotifCenterOpen(!isNotifCenterOpen)}
+    />
+
+    <main className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
+      {renderContent()}
+
+      {/* Notification Overlay Components */}
+      <NotificationToast
+        notification={activeToast}
+        onClose={() => setActiveToast(null)}
       />
 
-      <main className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
-        {renderContent()}
-
-        {/* Notification Overlay Components */}
-        <NotificationToast
-          notification={activeToast}
-          onClose={() => setActiveToast(null)}
-        />
-
-        <NotificationCenter
-          notifications={notifications}
-          isOpen={isNotifCenterOpen}
-          onClose={() => setIsNotifCenterOpen(false)}
-          onMarkAsRead={markAsRead}
-          onClearAll={clearAllNotifications}
-        />
+      <NotificationCenter
+        notifications={notifications}
+        isOpen={isNotifCenterOpen}
+        onClose={() => setIsNotifCenterOpen(false)}
+        onMarkAsRead={markAsRead}
+        onClearAll={clearAllNotifications}
+      />
 
 
-        <DailyBriefingModal
-          isOpen={showBriefingModal}
-          onClose={() => setShowBriefingModal(false)}
-          content={briefing}
-        />
-      </main>
+      <DailyBriefingModal
+        isOpen={showBriefingModal}
+        onClose={() => setShowBriefingModal(false)}
+        content={briefing}
+      />
+    </main>
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-    </div>
-  );
+    <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+  </div>
+);
 };
 
 export default App;

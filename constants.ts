@@ -5,7 +5,7 @@ import { EmergencyContact, NewsItem, DailyForecast, TideInfo, LocalEvent, Saeman
 const getRelativeDate = (offset: number, format: 'YYYY-MM-DD' | 'MM.DD' | 'M/D' | 'YYYY.MM' = 'YYYY-MM-DD') => {
   const d = new Date();
   d.setDate(d.getDate() + offset);
-  
+
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -48,7 +48,7 @@ export const FALLBACK_NEWS_DATA: NewsItem[] = [
   source: item.source,
   platform: 'Google',
   originalUrl: `https://www.google.com/search?q=${encodeURIComponent(item.title)}`,
-  date: getRelativeDate(idx < 5 ? 0 : -1), 
+  date: getRelativeDate(idx < 5 ? 0 : -1),
   summary: `${item.title}에 대한 주요 내용이 보도되었습니다. 자세한 내용은 기사를 확인하세요.`,
   content: ''
 }));
@@ -121,6 +121,16 @@ export const MOCK_TIDES: TideInfo[] = [
       { time: '11:30', type: 'Low', height: 110 },
       { time: '17:15', type: 'High', height: 670 },
       { time: '23:35', type: 'Low', height: 85 },
+    ]
+  },
+  {
+    date: getRelativeDate(2, 'MM.DD'),
+    day: '모레',
+    tides: [
+      { time: '05:40', type: 'High', height: 710 },
+      { time: '12:15', type: 'Low', height: 100 },
+      { time: '18:00', type: 'High', height: 690 },
+      { time: '00:20', type: 'Low', height: 80 },
     ]
   }
 ];
