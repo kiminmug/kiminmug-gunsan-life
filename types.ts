@@ -4,7 +4,7 @@ export interface NewsItem {
   title: string;
   category: string;
   source: string; // The visible media name (e.g., 'YTN', 'Gunsan City')
-  platform: 'Google' | 'Naver' | 'KCN'; // Added KCN for video news
+  platform: 'Google' | 'Naver' | 'KCN' | 'TodayGunsan'; // Added KCN and TodayGunsan
   originalUrl: string; // URL to the external article
   date: string;
   summary: string;

@@ -18,11 +18,25 @@ const getRelativeDate = (offset: number, format: 'YYYY-MM-DD' | 'MM.DD' | 'M/D' 
   return `${year}-${month}-${day}`;
 };
 
-export const NEWSPAPER_SHORTCUTS = [
-  { name: '군산미래신문', url: 'http://www.kmrnews.com/m/newslist_m.htm' },
-  { name: '투데이군산', url: 'http://www.todaygunsan.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm' },
-  { name: '군산신문', url: 'http://www.gunsanews.com/' }
+export const NEWS_CATEGORIES = [
+  {
+    name: '군산언론',
+    url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?33ed0469eb144',
+    image: '/assets/gunsan_news.png'
+  },
+  {
+    name: '전북언론',
+    url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?33ed5a09a52ca',
+    image: '/assets/jeonbuk_news.png'
+  },
+  {
+    name: '중앙언론',
+    url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?1322704382423',
+    image: '/assets/central_news.png'
+  }
 ];
+
+export const TODAY_GUNSAN_RSS_URL = 'http://www.todaygunsan.co.kr/rss/S1N1.xml';
 
 // Fallback data in case RSS fetch fails
 export const FALLBACK_NEWS_DATA: NewsItem[] = [
