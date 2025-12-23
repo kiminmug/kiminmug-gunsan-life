@@ -179,9 +179,8 @@ const App: React.FC = () => {
                   <span className="text-xs text-gray-400">무엇이든 물어보세요</span>
                 </div>
               </button>
-              </button>
             </div>
-            
+
             <InstallPWA />
 
             <div className="mt-auto pt-8 text-center pb-4">
@@ -193,54 +192,54 @@ const App: React.FC = () => {
           </div >
         );
       case AppTab.NEWS:
-return <NewsFeed />;
+        return <NewsFeed />;
       case AppTab.WEATHER:
-return <WeatherWidget />;
+        return <WeatherWidget />;
       case AppTab.INFO:
-return <LifeHub />;
+        return <LifeHub />;
       case AppTab.CHAT:
-return <AiConcierge />;
+        return <AiConcierge />;
       default:
-return null;
+        return null;
     }
   };
 
-return (
-  <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-    <Navbar
-      activeTab={activeTab}
-      unreadCount={unreadCount}
-      onToggleNotifications={() => setIsNotifCenterOpen(!isNotifCenterOpen)}
-    />
-
-    <main className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
-      {renderContent()}
-
-      {/* Notification Overlay Components */}
-      <NotificationToast
-        notification={activeToast}
-        onClose={() => setActiveToast(null)}
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      <Navbar
+        activeTab={activeTab}
+        unreadCount={unreadCount}
+        onToggleNotifications={() => setIsNotifCenterOpen(!isNotifCenterOpen)}
       />
 
-      <NotificationCenter
-        notifications={notifications}
-        isOpen={isNotifCenterOpen}
-        onClose={() => setIsNotifCenterOpen(false)}
-        onMarkAsRead={markAsRead}
-        onClearAll={clearAllNotifications}
-      />
+      <main className="max-w-md mx-auto min-h-screen bg-white shadow-2xl overflow-hidden relative">
+        {renderContent()}
+
+        {/* Notification Overlay Components */}
+        <NotificationToast
+          notification={activeToast}
+          onClose={() => setActiveToast(null)}
+        />
+
+        <NotificationCenter
+          notifications={notifications}
+          isOpen={isNotifCenterOpen}
+          onClose={() => setIsNotifCenterOpen(false)}
+          onMarkAsRead={markAsRead}
+          onClearAll={clearAllNotifications}
+        />
 
 
-      <DailyBriefingModal
-        isOpen={showBriefingModal}
-        onClose={() => setShowBriefingModal(false)}
-        content={briefing}
-      />
-    </main>
+        <DailyBriefingModal
+          isOpen={showBriefingModal}
+          onClose={() => setShowBriefingModal(false)}
+          content={briefing}
+        />
+      </main>
 
-    <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-  </div>
-);
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+    </div>
+  );
 };
 
 export default App;
