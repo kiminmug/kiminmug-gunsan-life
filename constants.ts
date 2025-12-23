@@ -47,56 +47,52 @@ export const FALLBACK_NEWS_DATA: NewsItem[] = [
   category: '뉴스',
   source: item.source,
   platform: 'Google',
-  // FIX: Use full title for search query to ensure relevant results
   originalUrl: `https://www.google.com/search?q=${encodeURIComponent(item.title)}`,
-  date: getRelativeDate(idx < 5 ? 0 : -1), // Top 5 are today, rest yesterday
-  // FIX: Provide a brief summary based on the title
+  date: getRelativeDate(idx < 5 ? 0 : -1), 
   summary: `${item.title}에 대한 주요 내용이 보도되었습니다. 자세한 내용은 기사를 확인하세요.`,
   content: ''
 }));
 
-// Video News Data (Mock KCN Data with REAL YouTube IDs for demo purposes)
+/**
+ * 영상뉴스 데이터 (금강방송 KCN 공식 유튜브 채널 기반)
+ */
+export const KCN_YOUTUBE_URL = "https://www.youtube.com/@kcn_official/videos";
+
+// Fixed Type Error: Explicitly casting platform to 'KCN' literal type using 'as const' to satisfy NewsItem interface
 export const VIDEO_NEWS_DATA: NewsItem[] = [
   {
-    title: "군산 짬뽕페스티벌 성황... '맛과 흥' 넘쳐",
-    summary: "전국 짬뽕 맛집들이 군산에 모였습니다. 짬뽕 페스티벌 현장을 KCN이 취재했습니다.",
-    videoId: "B88k6F7k4qE" // Mock ID (Replace with real KCN video ID)
+    title: "KCN 금강방송 실시간 뉴스 (군산/익산)",
+    summary: "군산 지역의 가장 빠른 소식, KCN 금강방송 공식 유튜브 채널에서 확인하세요.",
+    originalUrl: KCN_YOUTUBE_URL,
+    source: "KCN 금강방송",
+    platform: "KCN" as const,
+    date: "실시간",
+    id: "v-kcn-main"
   },
   {
-    title: "새만금 이차전지 특화단지, 기업 유치 '가속도'",
-    summary: "새만금 산단이 이차전지 메카로 떠오르고 있습니다. 주요 기업들의 입주 현황을 살펴봅니다.",
-    videoId: "w9u-y8v_h4A" // Mock ID
+    title: "군산시 주요 시정 소식 및 지역 경제 뉴스",
+    summary: "군산시의 새로운 정책과 지역 경제 활성화 소식을 영상으로 만나보세요.",
+    originalUrl: KCN_YOUTUBE_URL,
+    source: "KCN 금강방송",
+    platform: "KCN" as const,
+    date: "최근",
+    id: "v-kcn-economy"
   },
   {
-    title: "군산 근대문화유산 야행, 가을밤 수놓다",
-    summary: "군산의 근대 역사를 체험할 수 있는 야행 행사가 시민들의 호응 속에 열렸습니다.",
-    videoId: "LXb3EKWsInQ" // Mock ID
-  },
-  {
-    title: "군산시, '골목상권 살리기' 총력... 지역화폐 확대",
-    summary: "침체된 골목상권을 살리기 위해 군산시가 지역화폐 혜택을 확대합니다.",
-    videoId: "fJ9rUzIMcZQ" // Mock ID
-  },
-  {
-    title: "[기획] 군산 은파호수공원의 사계, 가을 풍경",
-    summary: "시민들의 휴식처 은파호수공원, 붉게 물든 단풍이 장관을 이루고 있습니다.",
-    videoId: "HhC8i0q8w8o" // Mock ID
+    title: "우리동네 화제와 사건사고 현장 리포트",
+    summary: "군산 구석구석의 생생한 현장과 시민들의 목소리를 담은 리포트입니다.",
+    originalUrl: KCN_YOUTUBE_URL,
+    source: "KCN 금강방송",
+    platform: "KCN" as const,
+    date: "최근",
+    id: "v-kcn-local"
   }
-].map((item, idx) => ({
-  id: `video-${idx}`,
-  title: `[KCN 뉴스] ${item.title}`,
+].map(item => ({
+  ...item,
   category: '영상',
-  source: 'KCN 금강방송',
-  platform: 'KCN',
-  originalUrl: `https://www.youtube.com/watch?v=${item.videoId}`,
-  date: getRelativeDate(idx * -2),
-  summary: item.summary,
-  // Use YouTube Thumbnail logic
-  imageUrl: `https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`,
-  videoId: item.videoId,
-  content: ''
+  content: '',
+  imageUrl: 'https://img.youtube.com/vi/LXb3EKWsInQ/maxresdefault.jpg' // 대표 이미지
 }));
-
 
 export const MOCK_NEWS: NewsItem[] = [];
 
@@ -145,50 +141,12 @@ export const MOCK_EVENTS: LocalEvent[] = [
     location: '은파 수변무대',
     type: 'Culture',
     description: '지역 예술인들과 함께하는 낭만 버스킹'
-  },
-  {
-    id: 'e3',
-    title: '군산 꽁당보리 축제',
-    dateRange: '05.02(목) ~ 05.04(토)',
-    location: '미성동 서들녘 활동장',
-    type: 'Festival',
-    description: '푸른 보리밭에서 즐기는 추억의 축제'
   }
 ];
 
 export const MOCK_FORECAST: DailyForecast[] = [
-  {
-    day: '오늘',
-    date: getRelativeDate(0, 'M/D'),
-    high: 24,
-    low: 15,
-    condition: 'Sunny',
-    rainProbability: 0
-  },
-  {
-    day: '내일',
-    date: getRelativeDate(1, 'M/D'),
-    high: 26,
-    low: 16,
-    condition: 'PartlyCloudy',
-    rainProbability: 20
-  },
-  {
-    day: '모레',
-    date: getRelativeDate(2, 'M/D'),
-    high: 22,
-    low: 17,
-    condition: 'Rainy',
-    rainProbability: 70
-  },
-  {
-    day: '글피',
-    date: getRelativeDate(3, 'M/D'),
-    high: 25,
-    low: 16,
-    condition: 'Cloudy',
-    rainProbability: 30
-  }
+  { day: '오늘', date: getRelativeDate(0, 'M/D'), high: 24, low: 15, condition: 'Sunny', rainProbability: 0 },
+  { day: '내일', date: getRelativeDate(1, 'M/D'), high: 26, low: 16, condition: 'PartlyCloudy', rainProbability: 20 }
 ];
 
 export const EMERGENCY_CONTACTS: EmergencyContact[] = [
@@ -198,15 +156,10 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] = [
   { name: '동군산 병원 (응급실)', phone: '063-440-0300', category: 'Medical' },
   { name: '군산 경찰서', phone: '063-441-0324', category: 'Safety' },
   { name: '군산 소방서', phone: '063-450-9119', category: 'Safety' },
-  { name: '상수도 고장신고', phone: '063-454-5350', category: 'Utility' },
-  { name: '생활 쓰레기 수거 문의', phone: '063-454-3450', category: 'Utility' },
-  { name: '당직 약국 안내', phone: '119', category: 'Medical' }, // 119 provides this info often
 ];
 
 export const LOCAL_TIPS = [
   "💡 군산사랑상품권은 월초에 구매하면 10% 할인을 받을 수 있어요.",
   "💡 이성당 빵집은 평일 오전 10시 이전이 가장 한가해요.",
-  "💡 은파호수공원 야경은 물빛다리 조명이 켜지는 일몰 직후가 가장 예뻐요.",
-  "💡 월명동 근대역사거리는 주말엔 차 없는 거리가 운영될 수 있어요.",
-  "💡 군산 공항 이용 시 군산 시민 주차 할인을 확인해보세요."
+  "💡 은파호수공원 야경은 물빛다리 조명이 켜지는 일몰 직후가 가장 예뻐요."
 ];
