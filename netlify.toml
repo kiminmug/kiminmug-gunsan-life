@@ -6,3 +6,9 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--include=optional"
   SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
+[[redirects]]
+  from = "/api/rss/todaygunsan"
+  to = "http://www.todaygunsan.co.kr/rss/S1N1.xml"
+  status = 200
+  force = true

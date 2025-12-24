@@ -16,22 +16,31 @@ const NewsFeed: React.FC = () => {
     setLoading(true);
     try {
       let rssUrl = '';
+      // Use optimized internal proxy for fast loading
       if (activePlatform === 'ALL') {
-        rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
+        // Google News still needs CORS proxy or similar, but let's stick to AllOrigins for Google for now as it varies.
+        // Or better, let's keep Google as is for safety, only optimize TodayGunsan as requested.
+        rssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`)}`;
       } else {
-        rssUrl = TODAY_GUNSAN_RSS_URL;
+        // Direct Netlify/Vite Proxy (FAST)
+        rssUrl = '/api/rss/todaygunsan';
       }
 
-      // Using AllOrigins as a proxy to bypass CORS for the HTTP RSS feed
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
-
+      const response = await fetch(rssUrl);
       if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
 
-      if (!data.contents) throw new Error("Proxy error");
+      let xmlText = '';
+      if (activePlatform === 'ALL') {
+        // AllOrigins returns JSON
+        const data = await response.json();
+        xmlText = data.contents;
+      } else {
+        // Our proxy returns raw XML
+        xmlText = await response.text();
+      }
 
       const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
       const items = xmlDoc.querySelectorAll('item');
 
       const parsedNews: NewsItem[] = Array.from(items).map((item, index) => {

@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+      proxy: {
+        '/api/rss/todaygunsan': {
+          target: 'http://www.todaygunsan.co.kr/rss/S1N1.xml',
+          changeOrigin: true,
+          rewrite: (path) => '',
+        }
+      },
     },
     plugins: [react()],
     define: {

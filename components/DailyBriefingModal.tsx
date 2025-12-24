@@ -8,6 +8,8 @@ interface DailyBriefingModalProps {
     content: string;
 }
 
+import ReactMarkdown from 'react-markdown';
+
 const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({ isOpen, onClose, content }) => {
     if (!isOpen) return null;
 
@@ -33,10 +35,8 @@ const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({ isOpen, onClose
 
                 {/* Content */}
                 <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                    <div className="prose prose-sm prose-blue max-w-none">
-                        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed text-[16px] font-normal not-italic">
-                            {content}
-                        </p>
+                    <div className="prose prose-sm prose-blue max-w-none text-gray-800 leading-relaxed">
+                        <ReactMarkdown>{content}</ReactMarkdown>
                     </div>
                 </div>
 

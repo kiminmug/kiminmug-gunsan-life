@@ -185,17 +185,28 @@ export const getDailyBriefing = async (): Promise<string> => {
 
       const response = await ai.models.generateContent({
         model: 'gemini-1.5-flash',
-        // Remove googleSearch to prevent API errors. Provide date context directly.
-        contents: `오늘은 ${dateStr}입니다. 전라북도 군산 시민들에게 건네는 따뜻하고 활기찬 아침 인사말을 3문장 이내로 작성해줘. (군산 사투리 '거시기', '~했어유' 등을 아주 살짝 섞어서 친근하게)`,
+        contents: `오늘은 ${dateStr}입니다. 군산시민을 위한 '오늘의 브리핑'을 작성해주세요.
+        
+        다음 정보를 검색하여 포함하세요:
+        1. [날짜]: 양력 날짜와 음력 날짜, 그리고 해당되는 절기가 있다면 포함.
+        2. [군산 날씨 전망]: 오늘과 내일의 상세 날씨 (기온, 강수, 바람 등) 및 외출 조언.
+        3. [군산 주요 뉴스]: 최근 군산 지역의 주요 뉴스 3가지를 요약.
+        4. [인사말]: 군산 사투리('~했어유', '거시기')를 살짝 섞은 따뜻한 아침 인사.
+
+        형식은 **마크다운** 스타일(헤더, 리스트)을 사용하여 가독성 있게 작성해주세요. 
+        단, 가장 첫 줄은 인사를 제외한 'YYYY년 M월 D일 군산 소식 브리핑' 제목으로 시작하세요.`,
+        config: {
+          tools: [{ googleSearch: {} }],
+        }
       });
-      return response.text || "오늘도 좋은 하루 되세요!";
+      return response.text || "오늘의 브리핑 정보를 가져올 수 없습니다.";
     } catch (e) {
       console.error("Briefing Error:", e);
-      // Smart Fallback: Generate a date-based greeting locally so the user never sees an error
+      // Fallback
       const today = new Date();
       const days = ['일', '월', '화', '수', '목', '금', '토'];
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 ${days[today.getDay()]}요일`;
-      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n군산 시민 여러분, 행복 가득한 하루 되시길 바랍니다.`;
+      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n(현재 상세 브리핑 정보를 가져오는 중 오류가 발생하여 기본 인사를 전합니다.)\n\n행복 가득한 하루 되시길 바랍니다.`;
     }
   };
 
