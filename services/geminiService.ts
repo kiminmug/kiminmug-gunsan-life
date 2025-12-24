@@ -200,13 +200,15 @@ export const getDailyBriefing = async (): Promise<string> => {
         }
       });
       return response.text || "오늘의 브리핑 정보를 가져올 수 없습니다.";
-    } catch (e) {
+    } catch (e: any) {
       console.error("Briefing Error:", e);
-      // Fallback
+      // Fallback with Error Details for Debugging
       const today = new Date();
       const days = ['일', '월', '화', '수', '목', '금', '토'];
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 ${days[today.getDay()]}요일`;
-      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n(현재 상세 브리핑 정보를 가져오는 중 오류가 발생하여 기본 인사를 전합니다.)\n\n행복 가득한 하루 되시길 바랍니다.`;
+      const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
+
+      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 원인: ${errorMessage})\n\n행복 가득한 하루 되시길 바랍니다.`;
     }
   };
 
