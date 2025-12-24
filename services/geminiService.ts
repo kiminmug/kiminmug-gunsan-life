@@ -13,7 +13,7 @@ const getClient = () => {
 export const createChatSession = (): Chat => {
   const ai = getClient();
   return ai.chats.create({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-flash-001',
     config: {
       systemInstruction: `
         당신은 전라북도 군산시에 거주하는 주민들을 위한 친절한 '군산 AI 비서'입니다.
@@ -87,7 +87,7 @@ export const getRealtimeWeather = async () => {
   const ai = getClient();
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-001",
       contents: "현재 전라북도 군산시의 실시간 날씨 정보를 알려줘. 온도, 상태, 습도, 풍속, 미세먼지 농도 및 상태, 그리고 향후 3일간의 일자별 최고/최저 기온과 상태를 포함해줘.",
       config: {
         tools: [{ googleSearch: {} }],
@@ -143,7 +143,7 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
   const ai = getClient();
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash-001',
       contents: "오늘 현재 전라북도 군산시의 긴급한 도로 교통 상황(사고, 공사, 정체)이나 실시간 기상 특보(호우, 폭염 등), 또는 중요한 지역 소식을 찾아줘. 알림으로 띄울 만한 정보 2개를 요약해줘.",
       config: {
         tools: [{ googleSearch: {} }],
@@ -184,7 +184,7 @@ export const getDailyBriefing = async (): Promise<string> => {
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-1.5-flash-001',
         contents: `오늘은 ${dateStr}입니다. 군산시민을 위한 '오늘의 브리핑'을 작성해주세요.
         
         다음 정보를 검색하여 포함하세요:
