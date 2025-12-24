@@ -120,18 +120,29 @@ const NewsFeed: React.FC = () => {
       case 'LIVE':
         return (
           <div className="animate-[fadeIn_0.3s_ease-out]">
-            {/* Sub-tabs for RSS */}
-            <div className="sticky top-14 z-20 bg-white px-4 border-b border-gray-100 flex shadow-sm overflow-x-auto no-scrollbar">
-              {(['ALL', 'TodayGunsan', 'KCN'] as const).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => { setActivePlatform(p); }}
-                  className={`flex-shrink-0 px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activePlatform === p ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'
-                    }`}
-                >
-                  {p === 'ALL' ? '전체' : p === 'TodayGunsan' ? '투데이군산(rss)' : '영상뉴스'}
-                </button>
-              ))}
+            {/* Sub-tabs for RSS & Refresh */}
+            <div className="sticky top-14 z-20 bg-white px-2 border-b border-gray-100 flex items-center justify-between shadow-sm">
+              <div className="flex overflow-x-auto no-scrollbar flex-1">
+                {(['ALL', 'TodayGunsan', 'KCN'] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => { setActivePlatform(p); }}
+                    className={`flex-shrink-0 px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activePlatform === p ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'
+                      }`}
+                  >
+                    {p === 'ALL' ? '전체' : p === 'TodayGunsan' ? '투데이군산' : '영상뉴스'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Refresh Button */}
+              <button
+                onClick={fetchRSS}
+                disabled={loading}
+                className="px-3 py-3 text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1 active:scale-95"
+              >
+                <RefreshCw size={18} className={loading ? "animate-spin text-blue-500" : ""} />
+              </button>
             </div>
 
             <div className="divide-y divide-gray-100 min-h-[50vh]">
