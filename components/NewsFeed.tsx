@@ -12,6 +12,7 @@ const NewsFeed: React.FC = () => {
   // Category Sub-page State
   const [viewMode, setViewMode] = useState<'LIST' | 'CATEGORY_DETAIL'>('LIST');
   const [selectedCategory, setSelectedCategory] = useState<{ name: string, url: string, image: string } | null>(null);
+  const [activeNewsCategory, setActiveNewsCategory] = useState<string>(NEWS_CATEGORIES[0].name);
 
   const fetchRSS = async () => {
     setLoading(true);
@@ -160,22 +161,39 @@ const NewsFeed: React.FC = () => {
   return (
     <div className="pb-20 bg-white min-h-screen">
       {/* Newspaper Shortcuts Section */}
-      <div className="bg-gray-50 p-4 border-b border-gray-200">
-        <h3 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">뉴스바로보기</h3>
-        <div className="grid grid-cols-3 gap-3">
+      <div className="bg-white px-4 pt-4 pb-6 border-b border-gray-100">
+        <h3 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider flex items-center gap-1">
+          <ExternalLink size={12} /> 언론사 바로가기
+        </h3>
+
+        {/* News Category Tabs */}
+        <div className="flex bg-gray-100 p-1 rounded-xl mb-4">
           {NEWS_CATEGORIES.map((cat) => (
             <button
               key={cat.name}
-              onClick={() => handleCategoryClick(cat)}
-              className="flex flex-col items-center gap-2 group"
+              onClick={() => setActiveNewsCategory(cat.name)}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${activeNewsCategory === cat.name
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+                }`}
             >
-              <div className="w-full aspect-video bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden relative group-hover:border-blue-400 transition-colors">
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
-              </div>
-              <span className="text-xs font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
-                {cat.name}
-              </span>
+              {cat.name}
             </button>
+          ))}
+        </div>
+
+        {/* Selected Category Content */}
+        <div className="animate-[fadeIn_0.3s_ease-out]">
+          {NEWS_CATEGORIES.filter(c => c.name === activeNewsCategory).map(cat => (
+            <div key={cat.name} onClick={() => handleOpenExternal(cat.url)} className="group cursor-pointer">
+              <div className="w-full aspect-[21/9] bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group-hover:border-blue-200 transition-colors">
+                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors" />
+                <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-gray-800 shadow-sm flex items-center gap-1">
+                  바로가기 <ChevronRight size={12} />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
