@@ -180,11 +180,13 @@ export const getDailyBriefing = async (): Promise<string> => {
 
   const fetchBriefing = async () => {
     try {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+
       const response = await ai.models.generateContent({
         model: 'gemini-1.5-flash',
-        // Simplified prompt for faster response
-        contents: "전북 군산의 오늘 날씨와 주요 이슈 1가지만 짧게 요약하고, 군산 시민에게 건네는 다정한 아침 인사를 3문장 이내로 작성해줘. (사투리 약간 섞어서 친근하게)",
-        config: { tools: [{ googleSearch: {} }] }
+        // Remove googleSearch to prevent API errors. Provide date context directly.
+        contents: `오늘은 ${dateStr}입니다. 전라북도 군산 시민들에게 건네는 따뜻하고 활기찬 아침 인사말을 3문장 이내로 작성해줘. (군산 사투리 '거시기', '~했어유' 등을 아주 살짝 섞어서 친근하게)`,
       });
       return response.text || "오늘도 좋은 하루 되세요!";
     } catch (e) {
