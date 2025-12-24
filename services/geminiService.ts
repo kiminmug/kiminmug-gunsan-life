@@ -143,7 +143,7 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
   const ai = getClient();
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-1.5-flash',
       contents: "오늘 현재 전라북도 군산시의 긴급한 도로 교통 상황(사고, 공사, 정체)이나 실시간 기상 특보(호우, 폭염 등), 또는 중요한 지역 소식을 찾아줘. 알림으로 띄울 만한 정보 2개를 요약해줘.",
       config: {
         tools: [{ googleSearch: {} }],
@@ -174,7 +174,7 @@ export const getDailyBriefing = async (): Promise<string> => {
   const ai = getClient();
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-1.5-flash',
       contents: "오늘 군산의 실시간 날씨와 현재 이슈를 확인하고, 군산 시민에게 건네는 따뜻한 아침 인사말을 다음 형식으로 상세하게(300자 내외) 작성해줘. \\n\\n형식:\\n1. **[날짜]:** YYYY년 MM월 DD일 요일 (음력 MM월 DD일)\\n2. * **실시간 날씨:** [온도, 상태, 특이사항]\\n3. * **현재 이슈:** [군산 관련 뉴스나 생활 정보]\\n4. * **[군산 시민을 위한 아침 인사]:** [사투리를 섞은 따뜻한 말]",
       config: { tools: [{ googleSearch: {} }] }
     });
