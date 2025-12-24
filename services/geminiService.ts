@@ -13,7 +13,7 @@ const getClient = () => {
 export const createChatSession = (): Chat => {
   const ai = getClient();
   return ai.chats.create({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-1.5-flash',
     config: {
       systemInstruction: `
         당신은 전라북도 군산시에 거주하는 주민들을 위한 친절한 '군산 AI 비서'입니다.
