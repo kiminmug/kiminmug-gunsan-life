@@ -191,7 +191,11 @@ export const getDailyBriefing = async (): Promise<string> => {
       return response.text || "오늘도 좋은 하루 되세요!";
     } catch (e) {
       console.error("Briefing Error:", e);
-      return "오늘도 행복한 하루 보내세요! (데이터를 불러오는데 실패했습니다)";
+      // Smart Fallback: Generate a date-based greeting locally so the user never sees an error
+      const today = new Date();
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 ${days[today.getDay()]}요일`;
+      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n군산 시민 여러분, 행복 가득한 하루 되시길 바랍니다.`;
     }
   };
 
