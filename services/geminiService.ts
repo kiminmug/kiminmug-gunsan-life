@@ -172,14 +172,26 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
 
 export const getDailyBriefing = async (): Promise<string> => {
   const ai = getClient();
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: "오늘 군산의 실시간 날씨와 현재 이슈를 확인하고, 군산 시민에게 건네는 따뜻한 아침 인사말을 다음 형식으로 상세하게(300자 내외) 작성해줘. \\n\\n형식:\\n1. **[날짜]:** YYYY년 MM월 DD일 요일 (음력 MM월 DD일)\\n2. * **실시간 날씨:** [온도, 상태, 특이사항]\\n3. * **현재 이슈:** [군산 관련 뉴스나 생활 정보]\\n4. * **[군산 시민을 위한 아침 인사]:** [사투리를 섞은 따뜻한 말]",
-      config: { tools: [{ googleSearch: {} }] }
-    });
-    return response.text || "오늘도 좋은 하루 되세요!";
-  } catch (e) {
-    return "오늘도 활기찬 군산의 하루가 시작되었습니다!";
-  }
+
+  // Timeout promise
+  const timeout = new Promise<string>((resolve) => {
+    setTimeout(() => resolve("오늘도 활기찬 군산의 하루가 시작되었습니다! (연결 지연으로 기본 인사가 제공됩니다)"), 8000);
+  });
+
+  const fetchBriefing = async () => {
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-1.5-flash',
+        // Simplified prompt for faster response
+        contents: "전북 군산의 오늘 날씨와 주요 이슈 1가지만 짧게 요약하고, 군산 시민에게 건네는 다정한 아침 인사를 3문장 이내로 작성해줘. (사투리 약간 섞어서 친근하게)",
+        config: { tools: [{ googleSearch: {} }] }
+      });
+      return response.text || "오늘도 좋은 하루 되세요!";
+    } catch (e) {
+      console.error("Briefing Error:", e);
+      return "오늘도 행복한 하루 보내세요! (데이터를 불러오는데 실패했습니다)";
+    }
+  };
+
+  return Promise.race([fetchBriefing(), timeout]);
 }
