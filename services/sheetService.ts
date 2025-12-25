@@ -72,6 +72,9 @@ const parseCSV = (csvText: string): LocalEvent[] => {
             type = 'Notice'; // General
         }
 
+        // Clean up contact info (remove trailing citation numbers like ' 1', ' [12]')
+        const cleanContact = (contact || '').replace(/\s*\[?\d+\]?$/, '').trim();
+
         events.push({
             id: `sheet-${i}`,
             title: title.trim(),
@@ -79,7 +82,7 @@ const parseCSV = (csvText: string): LocalEvent[] => {
             dateRange: rawDate,
             location: location,
             type: type,
-            contact: contact // Added contact info
+            contact: cleanContact
         });
     }
     return events;
