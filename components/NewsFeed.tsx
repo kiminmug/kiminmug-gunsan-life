@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NEWS_CATEGORIES, FALLBACK_NEWS_DATA, VIDEO_NEWS_DATA, KCN_YOUTUBE_URL, TODAY_GUNSAN_RSS_URL } from '../constants';
-import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft } from 'lucide-react';
+import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { NewsItem } from '../types';
 
 const NewsFeed: React.FC = () => {
@@ -11,6 +11,7 @@ const NewsFeed: React.FC = () => {
   const [activePlatform, setActivePlatform] = useState<'ALL' | 'TodayGunsan' | 'KCN'>('ALL');
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Helper to parse XML and update state
   const parseXmlAndSetState = (xmlText: string) => {
@@ -83,6 +84,9 @@ const NewsFeed: React.FC = () => {
 
   const fetchRSS = async () => {
     setLoading(true);
+    setErrorMsg(null);
+    setNewsItems([]);
+
     let rssUrl = '';
 
     // Step 1: Determine Primary URL
@@ -96,7 +100,7 @@ const NewsFeed: React.FC = () => {
 
     try {
       const response = await fetch(rssUrl);
-      if (!response.ok) throw new Error('Primary fetch failed');
+      if (!response.ok) throw new Error(`Primary Fetch Failed (${response.status})`);
 
       // Handle Primary Response
       if (activePlatform === 'TodayGunsan') {
@@ -108,19 +112,36 @@ const NewsFeed: React.FC = () => {
         parseXmlAndSetState(data.contents);
       }
 
-    } catch (primaryError) {
+    } catch (primaryError: any) {
       console.warn("Primary fetch failed, attempting fallback...", primaryError);
 
-      // Step 2: Fallback Strategy (Only for TodayGunsan)
+      // Step 2: Fallback Strategy
       if (activePlatform === 'TodayGunsan') {
         try {
-          // Fallback to AllOrigins if local proxy fails
-          const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
+          // Fallback to rss2json (Robust Server-side Parser)
+          const fallbackUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
           const res = await fetch(fallbackUrl);
           const data = await res.json();
-          parseXmlAndSetState(data.contents);
-        } catch (fallbackError) {
+
+          if (data.status === 'ok') {
+            const mappedItems: NewsItem[] = data.items.map((item: any, idx: number) => ({
+              id: `rss-json-${idx}`,
+              title: item.title,
+              category: '뉴스',
+              source: '투데이군산',
+              platform: 'TodayGunsan',
+              originalUrl: item.link,
+              date: item.pubDate,
+              summary: item.description?.replace(/<[^>]*>/g, '').substring(0, 50) + '...', // Strip HTML
+              content: ''
+            }));
+            setNewsItems(mappedItems);
+          } else {
+            throw new Error('rss2json failed');
+          }
+        } catch (fallbackError: any) {
           console.error("Fallback failed:", fallbackError);
+          setErrorMsg(fallbackError.message || "뉴스 피드를 불러올 수 없습니다.");
           setNewsItems([]);
         }
       } else {
@@ -264,7 +285,7 @@ const NewsFeed: React.FC = () => {
                 <div className="py-20 text-center text-gray-400 flex flex-col items-center animate-[fadeIn_0.5s]">
                   <RefreshCw size={32} className="mb-2 text-gray-300" />
                   <p className="text-sm font-bold mb-1">뉴스를 불러올 수 없습니다.</p>
-                  <p className="text-xs mb-4">일시적인 연결 오류일 수 있습니다.</p>
+                  <p className="text-xs text-red-400 mb-4">{errorMsg || "연결 상태를 확인해주세요."}</p>
                   <button
                     onClick={fetchRSS}
                     className="bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors"
