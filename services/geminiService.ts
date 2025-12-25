@@ -64,7 +64,7 @@ export const getRealtimeWeather = async () => {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
     tools: [{ googleSearch: {} } as any],
-    generationConfig: { responseMimeType: "application/json" }
+    // generationConfig: { responseMimeType: "application/json" } // Removed to prevent 400 Conflict with Tools
   });
 
   try {

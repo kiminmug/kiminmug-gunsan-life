@@ -232,6 +232,20 @@ const NewsFeed: React.FC = () => {
                   <p className="text-sm">뉴스를 불러오는 중...</p>
                 </div>
               )}
+
+              {!loading && activePlatform !== 'KCN' && newsItems.length === 0 && (
+                <div className="py-20 text-center text-gray-400 flex flex-col items-center animate-[fadeIn_0.5s]">
+                  <RefreshCw size={32} className="mb-2 text-gray-300" />
+                  <p className="text-sm font-bold mb-1">뉴스를 불러올 수 없습니다.</p>
+                  <p className="text-xs mb-4">일시적인 연결 오류일 수 있습니다.</p>
+                  <button
+                    onClick={fetchRSS}
+                    className="bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors"
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );
