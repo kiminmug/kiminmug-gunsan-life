@@ -148,7 +148,7 @@ const LifeHub: React.FC = () => {
             </div>
 
             {/* 2. Content List */}
-            <div className="p-4 space-y-3">
+            <div className="px-4 pb-4 pt-8 space-y-3">
               {loadingEvents && (
                 <div className="flex justify-center py-10 text-gray-400">
                   <div className="flex flex-col items-center">
@@ -183,8 +183,8 @@ const LifeHub: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${event.type === 'Festival' ? 'bg-purple-50 text-purple-600' :
-                          event.type === 'Culture' ? 'bg-blue-50 text-blue-600' :
-                            'bg-green-50 text-green-600'
+                        event.type === 'Culture' ? 'bg-blue-50 text-blue-600' :
+                          'bg-green-50 text-green-600'
                         }`}>
                         {event.type === 'Festival' ? '공연/영화' : event.type === 'Culture' ? '전시회' : '일반행사'}
                       </span>
