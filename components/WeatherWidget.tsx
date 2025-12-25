@@ -23,16 +23,16 @@ const getWeatherIcon = (condition: string, size: number = 24, className: string 
 const WeatherWidget: React.FC = () => {
   const [weather, setWeather] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchWeather = async () => {
     setLoading(true);
-    setError(false);
+    setError(null);
     const data = await getRealtimeWeather();
     if (data && data.current) {
       setWeather(data);
     } else {
-      setError(true);
+      setError(data?.error || "날씨 정보를 가져오지 못했습니다.");
     }
     setLoading(false);
   };
@@ -45,7 +45,7 @@ const WeatherWidget: React.FC = () => {
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-[400px] text-gray-400">
         <RefreshCw size={32} className="animate-spin mb-4 text-blue-500" />
-        <p className="text-sm font-medium">군산 실시간 날씨를 불러오는 중...</p>
+        <p className="text-sm font-medium">군산 실시간 날씨를 검색중...</p>
       </div>
     );
   }
@@ -54,7 +54,8 @@ const WeatherWidget: React.FC = () => {
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-[400px] text-center">
         <AlertCircle size={40} className="text-red-400 mb-4" />
-        <p className="text-gray-600 mb-4">날씨 정보를 가져오지 못했습니다.</p>
+        <p className="text-gray-900 font-bold mb-1">일시적 오류</p>
+        <p className="text-gray-500 text-sm mb-4">{error}</p>
         <button
           onClick={fetchWeather}
           className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-md active:scale-95 transition-transform"

@@ -9,9 +9,10 @@ const getClient = () => {
   return new GoogleGenerativeAI(apiKey || "");
 };
 
-// Clean JSON helper to strip Markdown code blocks
+// Robust JSON helper to find the first JSON object
 const cleanJson = (text: string) => {
-  return text.replace(/```json\s*|\s*```/g, '').trim();
+  const match = text.match(/\{[\s\S]*\}/);
+  return match ? match[0] : text;
 };
 
 // Chat Session
@@ -84,11 +85,16 @@ export const getRealtimeWeather = async () => {
     const text = result.response.text();
 
     // Use helper to parse JSON robustly
-    return JSON.parse(cleanJson(text));
+    try {
+      return JSON.parse(cleanJson(text));
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError, "Text:", text);
+      return { error: "JSON Parsing Failed" };
+    }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Weather Fetch Error:", error);
-    return null;
+    return { error: error.message || "Fetch Failed" };
   }
 };
 
@@ -111,10 +117,10 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
-    // Use helper to parse JSON robustly
     return JSON.parse(cleanJson(text));
 
   } catch (error) {
+    console.error("Alert Fetch Error:", error);
     return [];
   }
 };
