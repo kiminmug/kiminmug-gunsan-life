@@ -79,6 +79,7 @@ const parseCSV = (csvText: string): LocalEvent[] => {
             dateRange: rawDate,
             location: location,
             type: type,
+            contact: contact // Added contact info
         });
     }
     return events;

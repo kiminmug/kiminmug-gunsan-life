@@ -198,11 +198,17 @@ const LifeHub: React.FC = () => {
                       {event.description}
                     </p>
 
-                    <div className="flex items-center gap-3 text-xs text-gray-400 font-medium">
-                      <span className="flex items-center gap-1">
-                        <MapPin size={12} />
-                        {event.location}
-                      </span>
+                    <div className="flex flex-col gap-1 mt-2">
+                      <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+                        <MapPin size={12} className="flex-shrink-0" />
+                        <span>{event.location}</span>
+                      </div>
+                      {event.contact && (
+                        <div className="flex items-center gap-2 text-xs text-blue-400 font-medium">
+                          <Phone size={12} className="flex-shrink-0" />
+                          <span>{event.contact}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

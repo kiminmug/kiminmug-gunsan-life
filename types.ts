@@ -67,6 +67,7 @@ export interface LocalEvent {
   location: string;
   type: 'Festival' | 'Culture' | 'Notice';
   description: string;
+  contact?: string;
 }
 
 export interface SaemangeumUpdate {
