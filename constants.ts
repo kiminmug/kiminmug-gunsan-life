@@ -23,12 +23,12 @@ export const NEWS_CATEGORIES = [
     name: '군산언론',
     image: '/assets/gunsan_media.png',
     subLinks: [
-      { name: '투데이군산', url: 'http://www.todaygunsan.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm' },
-      { name: '군산미래신문', url: 'http://www.kmrnews.com/m/newslist_m.htm' },
-      { name: '군산신문', url: 'http://www.gunsanews.com/' },
-      { name: '새군산신문', url: 'http://www.newgunsan.kr/' },
-      { name: '군산뉴스', url: 'https://www.newsgunsan.com/index.htm' },
-      { name: '군산타임즈', url: 'http://www.gunsantimes.co.kr/' }
+      { name: '투데이군산', url: 'http://www.todaygunsan.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm', logo: 'https://www.google.com/s2/favicons?sz=64&domain=www.todaygunsan.co.kr' },
+      { name: '군산미래신문', url: 'http://www.kmrnews.com/m/newslist_m.htm', logo: 'https://www.google.com/s2/favicons?sz=64&domain=www.kmrnews.com' },
+      { name: '군산신문', url: 'http://www.gunsanews.com/', logo: 'https://www.google.com/s2/favicons?sz=64&domain=www.gunsanews.com' },
+      { name: '새군산신문', url: 'http://www.newgunsan.kr/', logo: 'https://www.google.com/s2/favicons?sz=64&domain=www.newgunsan.kr' },
+      { name: '군산뉴스', url: 'https://www.newsgunsan.com/index.htm', logo: 'https://www.google.com/s2/favicons?sz=64&domain=www.newsgunsan.com' },
+      { name: '군산타임즈', url: 'http://www.gunsantimes.co.kr/', logo: 'https://www.google.com/s2/favicons?sz=64&domain=www.gunsantimes.co.kr' }
     ]
   },
   {

@@ -316,10 +316,29 @@ const NewsFeed: React.FC = () => {
                   <button
                     key={idx}
                     onClick={() => handleOpenExternal(link.url)}
-                    className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-blue-500 hover:text-blue-600 hover:shadow-md transition-all active:scale-95"
+                    className="flex flex-col items-center justify-center p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-blue-500 hover:shadow-md transition-all active:scale-95 h-24"
                   >
-                    <span className="font-bold text-gray-800 text-sm">{link.name}</span>
-                    <ExternalLink size={14} className="ml-1 text-gray-400" />
+                    {/* Primary: Logo Image */}
+                    {link.logo ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <img
+                          src={link.logo}
+                          alt={link.name}
+                          className="w-8 h-8 object-contain rounded-sm"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                        <span className="font-bold text-gray-800 text-xs hidden">{link.name}</span>
+                        <span className="font-bold text-gray-800 text-xs mt-1">{link.name}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <span className="font-bold text-gray-800 text-sm">{link.name}</span>
+                        <ExternalLink size={14} className="text-gray-400" />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>

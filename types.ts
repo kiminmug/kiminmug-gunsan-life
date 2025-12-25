@@ -3,6 +3,7 @@
 export interface SubLink {
   name: string;
   url: string;
+  logo?: string;
 }
 
 export interface NewsCategory {
