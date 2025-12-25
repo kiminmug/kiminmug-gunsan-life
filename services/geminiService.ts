@@ -13,8 +13,8 @@ const getClient = () => {
 export const createChatSession = (): any => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash", // Updated to 2.5
-    // tools: [{ googleSearch: {} } as any], // Temporarily disabled tools to ensure stability first
+    model: "gemini-2.5-flash",
+    tools: [{ googleSearch: {} } as any],
   });
 
   return model.startChat({
@@ -26,6 +26,7 @@ export const createChatSession = (): any => {
           당신은 전라북도 군산시에 거주하는 주민들을 위한 친절한 '군산 AI 비서'입니다.
           군산 사투리를 아주 살짝 섞어서 친근하게 답변하세요.
           관광객이 아닌 거주민에게 필요한 실생활 정보를 제공하세요.
+          날씨나 뉴스는 Google Search를 사용하여 최신 정보를 제공하세요.
         ` }],
       },
       {
@@ -55,21 +56,23 @@ export const sendMessageToGemini = async (
 export const getRealtimeWeather = async () => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash", // Updated to 2.5
+    model: "gemini-2.5-flash",
+    tools: [{ googleSearch: {} } as any],
     generationConfig: { responseMimeType: "application/json" }
   });
 
   try {
-    // Prompt adapted for no-search initially to verify model
+    // Prompt explicitly asking for search
     const prompt = `
-      현재 전라북도 군산시의 날씨 정보를 추정해서 알려줘 (검색 기능 일시 중지됨).
-      현재 시즌과 시간을 고려해 합리적인 데이터를 생성해.
+      현재 전라북도 군산시의 실시간 날씨 정보를 Google Search를 사용하여 정확하게 찾아줘.
+      반드시 최신 기상청 데이터를 기반으로 해야 해.
       JSON 형식:
       {
         "current": { "temp": number, "condition": "Sunny"|"Cloudy"|"Rainy"|"Snowy"|"PartlyCloudy", "humidity": number, "windSpeed": number, "dustStatus": "좋음"|"보통"|"나쁨", "description": string },
         "forecast": [{ "day": string, "date": string, "high": number, "low": number, "condition": string, "rainProbability": number }],
-        "sourceUrl": "날씨 앱 참조 권장"
+        "sourceUrl": "정보 출처 URL"
       }
+      condition은 Sunny, Cloudy, Rainy, Snowy, PartlyCloudy 중 하나로.
     `;
 
     const result = await model.generateContent(prompt);
@@ -84,14 +87,17 @@ export const getRealtimeWeather = async () => {
 export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash", // Updated to 2.5
+    model: "gemini-2.5-flash",
+    tools: [{ googleSearch: {} } as any],
     generationConfig: { responseMimeType: "application/json" }
   });
 
   try {
     const prompt = `
-      오늘 군산시의 일반적인 생활 안전 정보를 2개 생성해줘.
-      JSON 배열 반환: [{ "title": string, "message": string, "type": "info" }]
+      오늘 현재 군산시의 긴급 도로 교통 상황, 기상 특보, 주요 지역 소식을 찾아줘.
+      Google Search를 통해 최신 뉴스 속보나 재난 문자를 확인해.
+      알림용으로 2개 요약해서 JSON 배열로 반환해:
+      [{ "title": string, "message": string, "type": "news" | "weather" | "info" }]
     `;
 
     const result = await model.generateContent(prompt);
@@ -109,18 +115,21 @@ export const getDailyBriefing = async (): Promise<string> => {
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
       const genAI = getClient();
-      // Using verified model from diagnostics
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        tools: [{ googleSearch: {} } as any],
+      });
 
       const prompt = `
         오늘은 ${dateStr}입니다. 군산시민을 위한 '오늘의 브리핑'을 작성해주세요.
         
-        다음 내용을 포함하여 마크다운 형식으로 작성해주세요:
-        1. [날짜]: 양력 날짜와 계절 인사.
-        2. [군산 생활 정보]: 이맘때쯤 군산에서 가볼 만한 곳이나 제철 음식 추천.
-        3. [인사말]: 군산 사투리('~했어유', '거시기')를 살짝 섞은 따뜻한 인사.
+        **반드시 Google Search를 사용하여 실시간 최신 정보를 검색**한 뒤 작성하세요:
+        1. [날짜]: 양력 날짜와 음력, 절기 정보.
+        2. [군산 날씨]: 오늘/내일 상세 날씨 (기온, 강수, 미세먼지).
+        3. [군산 뉴스]: 최근 군산 지역 주요 뉴스 3가지를 요약 (링크 포함하지 않음).
+        4. [인사말]: 군산 사투리 조금 섞은 따뜻한 인사.
         
-        첫 줄은 "## ${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 군산 브리핑"으로 시작하세요.
+        형식: 마크다운. 첫 줄 제목: '## YYYY년 M월 D일 군산 소식 브리핑'
       `;
 
       const result = await model.generateContent(prompt);
@@ -133,7 +142,7 @@ export const getDailyBriefing = async (): Promise<string> => {
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
 
-      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 원인: ${errorMessage})\n(모델을 gemini-2.5-flash로 변경했습니다. 지속되면 관리자에게 문의하세요.)\n\n행복 가득한 하루 되시길 바랍니다.`;
+      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 원인: ${errorMessage})\n\n행복 가득한 하루 되시길 바랍니다.`;
     }
   };
 
