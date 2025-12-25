@@ -1,13 +1,38 @@
-import React, { useState } from 'react';
-import { Phone, Shield, Cross, PenTool, AlertCircle, ChevronDown, ChevronUp, Anchor, Calendar as CalendarIcon, MapPin, Waves } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Phone, Shield, Cross, PenTool, AlertCircle, ChevronDown, ChevronUp, Calendar as CalendarIcon, MapPin, Loader2 } from 'lucide-react';
 import { EMERGENCY_CONTACTS, LOCAL_TIPS, MOCK_EVENTS } from '../constants';
-import { EmergencyContact } from '../types';
+import { EmergencyContact, LocalEvent } from '../types';
+import { fetchSheetEvents } from '../services/sheetService';
 
 const LifeHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'PHONES' | 'EVENTS'>('PHONES');
+
+  // Phone Directory States
   const [expandedCategories, setExpandedCategories] = useState<string[]>(
     Array.from(new Set(EMERGENCY_CONTACTS.map(c => c.category)))
   );
+
+  // Event Schedule States
+  const [activeEventTab, setActiveEventTab] = useState<'ALL' | 'PERFORMANCE' | 'EXHIBITION' | 'GENERAL'>('ALL');
+  const [events, setEvents] = useState<LocalEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'EVENTS') {
+      loadEvents();
+    }
+  }, [activeTab]);
+
+  const loadEvents = async () => {
+    setLoadingEvents(true);
+    const sheetData = await fetchSheetEvents();
+    if (sheetData.length > 0) {
+      setEvents(sheetData);
+    } else {
+      setEvents(MOCK_EVENTS); // Fallback to mock if sheet fails
+    }
+    setLoadingEvents(false);
+  };
 
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev =>
@@ -32,6 +57,14 @@ const LifeHub: React.FC = () => {
 
   const categories = Array.from(new Set(EMERGENCY_CONTACTS.map(c => c.category)));
 
+  // Filter Events Logic
+  const filteredEvents = events.filter(e => {
+    if (activeEventTab === 'ALL') return true;
+    if (activeEventTab === 'PERFORMANCE') return e.type === 'Festival'; // Using Festival type for Performance
+    if (activeEventTab === 'EXHIBITION') return e.type === 'Culture';
+    if (activeEventTab === 'GENERAL') return e.type === 'Notice';
+    return true;
+  });
 
   return (
     <div className="pb-20 bg-gray-50 min-h-full flex flex-col">
@@ -53,9 +86,9 @@ const LifeHub: React.FC = () => {
         </button>
       </div>
 
-      <div className="p-4 flex-1">
+      <div className="flex-1">
         {activeTab === 'PHONES' && (
-          <div className="animate-[fadeIn_0.2s_ease-out] space-y-4">
+          <div className="p-4 animate-[fadeIn_0.2s_ease-out] space-y-4">
             {/* Tips Section */}
             <div className="mb-4">
               <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 shadow-sm">
@@ -105,36 +138,76 @@ const LifeHub: React.FC = () => {
 
 
         {activeTab === 'EVENTS' && (
-          <div className="animate-[fadeIn_0.2s_ease-out] space-y-4">
-            {MOCK_EVENTS.map(event => (
-              <div key={event.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-2">
-                <div className="flex justify-between items-start">
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${event.type === 'Festival' ? 'bg-purple-100 text-purple-600' : 'bg-orange-100 text-orange-600'
-                    }`}>
-                    {event.type === 'Festival' ? '축제' : '문화행사'}
-                  </span>
-                  <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
-                    D-Day
-                  </span>
-                </div>
-                <h3 className="font-bold text-gray-900 text-lg">{event.title}</h3>
-                <p className="text-sm text-gray-600">{event.description}</p>
+          <div className="animate-[fadeIn_0.2s_ease-out] min-h-screen bg-gray-50">
+            {/* 1. Event Category Filter Tabs */}
+            <div className="sticky top-[116px] z-10 bg-white border-b border-gray-100 overflow-x-auto no-scrollbar flex px-4">
+              <button onClick={() => setActiveEventTab('ALL')} className={`flex-shrink-0 py-3.5 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${activeEventTab === 'ALL' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>전체보기</button>
+              <button onClick={() => setActiveEventTab('PERFORMANCE')} className={`flex-shrink-0 py-3.5 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${activeEventTab === 'PERFORMANCE' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>공연/영화</button>
+              <button onClick={() => setActiveEventTab('EXHIBITION')} className={`flex-shrink-0 py-3.5 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${activeEventTab === 'EXHIBITION' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>전시회</button>
+              <button onClick={() => setActiveEventTab('GENERAL')} className={`flex-shrink-0 py-3.5 px-4 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${activeEventTab === 'GENERAL' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>일반행사</button>
+            </div>
 
-                <div className="mt-2 pt-3 border-t border-gray-50 space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <CalendarIcon size={14} className="text-gray-400" />
-                    {event.dateRange}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <MapPin size={14} className="text-gray-400" />
-                    {event.location}
+            {/* 2. Content List */}
+            <div className="p-4 space-y-3">
+              {loadingEvents && (
+                <div className="flex justify-center py-10 text-gray-400">
+                  <div className="flex flex-col items-center">
+                    <Loader2 size={24} className="animate-spin text-orange-500 mb-2" />
+                    <span className="text-xs">행사 정보를 불러오는 중...</span>
                   </div>
                 </div>
-              </div>
-            ))}
-            <button className="w-full py-3 text-sm text-gray-500 font-medium bg-gray-100 rounded-xl">
-              더 많은 행사 보기
-            </button>
+              )}
+
+              {!loadingEvents && filteredEvents.length === 0 && (
+                <div className="text-center py-10 text-gray-400 text-sm">
+                  예정된 행사가 없습니다.
+                </div>
+              )}
+
+              {!loadingEvents && filteredEvents.map(event => (
+                <div key={event.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex gap-4 hover:shadow-md transition-shadow">
+                  {/* Left: Date */}
+                  <div className="flex-shrink-0 w-14 flex flex-col items-center pt-1">
+                    <span className="text-xl font-extrabold text-gray-800 leading-none">
+                      {event.dateRange.substring(0, 5)}
+                    </span>
+                    <span className="text-xs font-bold text-gray-400 mt-1">
+                      {event.dateRange.includes('(') ? event.dateRange.split('(')[1].split(')')[0] : ''}요일
+                    </span>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-[1px] bg-gray-100 my-1"></div>
+
+                  {/* Right: Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${event.type === 'Festival' ? 'bg-purple-50 text-purple-600' :
+                          event.type === 'Culture' ? 'bg-blue-50 text-blue-600' :
+                            'bg-green-50 text-green-600'
+                        }`}>
+                        {event.type === 'Festival' ? '공연/영화' : event.type === 'Culture' ? '전시회' : '일반행사'}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-bold text-gray-900 leading-snug mb-1 truncate break-keep">
+                      {event.title}
+                    </h3>
+
+                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">
+                      {event.description}
+                    </p>
+
+                    <div className="flex items-center gap-3 text-xs text-gray-400 font-medium">
+                      <span className="flex items-center gap-1">
+                        <MapPin size={12} />
+                        {event.location}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
