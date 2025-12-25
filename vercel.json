@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/rss/todaygunsan",
+            "destination": "http://www.todaygunsan.co.kr/rss/S1N1.xml"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

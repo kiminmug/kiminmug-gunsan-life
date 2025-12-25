@@ -9,6 +9,11 @@ const getClient = () => {
   return new GoogleGenerativeAI(apiKey || "");
 };
 
+// Clean JSON helper to strip Markdown code blocks
+const cleanJson = (text: string) => {
+  return text.replace(/```json\s*|\s*```/g, '').trim();
+};
+
 // Chat Session
 export const createChatSession = (): any => {
   const genAI = getClient();
@@ -77,7 +82,10 @@ export const getRealtimeWeather = async () => {
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    return JSON.parse(text);
+
+    // Use helper to parse JSON robustly
+    return JSON.parse(cleanJson(text));
+
   } catch (error) {
     console.error("Weather Fetch Error:", error);
     return null;
@@ -102,7 +110,10 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    return JSON.parse(text);
+
+    // Use helper to parse JSON robustly
+    return JSON.parse(cleanJson(text));
+
   } catch (error) {
     return [];
   }
