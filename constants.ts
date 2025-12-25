@@ -21,8 +21,15 @@ const getRelativeDate = (offset: number, format: 'YYYY-MM-DD' | 'MM.DD' | 'M/D' 
 export const NEWS_CATEGORIES = [
   {
     name: '군산언론',
-    url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?33ed0469eb144',
-    image: '/assets/gunsan_news.png'
+    image: '/assets/gunsan_media.png',
+    subLinks: [
+      { name: '투데이군산', url: 'http://www.todaygunsan.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm' },
+      { name: '군산미래신문', url: 'http://www.kmrnews.com/m/newslist_m.htm' },
+      { name: '군산신문', url: 'http://www.gunsanews.com/' },
+      { name: '새군산신문', url: 'http://www.newgunsan.kr/' },
+      { name: '군산뉴스', url: 'https://www.newsgunsan.com/index.htm' },
+      { name: '군산타임즈', url: 'http://www.gunsantimes.co.kr/' }
+    ]
   },
   {
     name: '전북언론',

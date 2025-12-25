@@ -1,4 +1,17 @@
 
+
+export interface SubLink {
+  name: string;
+  url: string;
+}
+
+export interface NewsCategory {
+  name: string;
+  url?: string;
+  image: string;
+  subLinks?: SubLink[];
+}
+
 export interface NewsItem {
   id: string;
   title: string;

@@ -300,17 +300,41 @@ const NewsFeed: React.FC = () => {
 
         return (
           <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center">
-            {/* Simple Clickable Image Layout */}
-            <div
-              onClick={() => handleOpenExternal(category.url)}
-              className="w-full cursor-pointer hover:opacity-95 transition-opacity"
-            >
+            {/* Header Image (User Provided Menu Visual) */}
+            <div className="w-full">
               <img
                 src={category.image}
                 alt={category.name}
                 className="w-full h-auto object-contain"
               />
             </div>
+
+            {/* If Sub-links exist (e.g. Gunsan Media), show clickable Grid */}
+            {category.subLinks && (
+              <div className="w-full p-4 grid grid-cols-2 gap-3 bg-gray-50">
+                {category.subLinks.map((link, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleOpenExternal(link.url)}
+                    className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-blue-500 hover:text-blue-600 hover:shadow-md transition-all active:scale-95"
+                  >
+                    <span className="font-bold text-gray-800 text-sm">{link.name}</span>
+                    <ExternalLink size={14} className="ml-1 text-gray-400" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Fallback for Image-only categories (Old behavior) */}
+            {!category.subLinks && (
+              <div
+                onClick={() => category.url && handleOpenExternal(category.url)}
+                className="w-full h-full flex-1 cursor-pointer hover:opacity-95 transition-opacity"
+              >
+                {/* Image is already rendered above, but if it was clickable entire-body... */}
+                {/* For now, just keeping the top image as the main visual */}
+              </div>
+            )}
           </div>
         );
     }
