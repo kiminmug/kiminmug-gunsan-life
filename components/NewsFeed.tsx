@@ -12,26 +12,9 @@ const NewsFeed: React.FC = () => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRSS = async () => {
-    setLoading(true);
+  // Helper to parse XML and update state
+  const parseXmlAndSetState = (xmlText: string) => {
     try {
-      let rssUrl = '';
-
-      // Always use AllOrigins for client-side CORS handling/HTTPS (Bypasses Vercel Proxy issues)
-      const targetUrl = activePlatform === 'ALL'
-        ? `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`
-        : TODAY_GUNSAN_RSS_URL;
-
-      rssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
-      const response = await fetch(rssUrl);
-      if (!response.ok) throw new Error('Network response was not ok');
-
-      let xmlText = '';
-      // AllOrigins returns JSON with 'contents' field containing the raw text
-      const data = await response.json();
-      xmlText = data.contents;
-
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
       const items = xmlDoc.querySelectorAll('item');
@@ -46,7 +29,6 @@ const NewsFeed: React.FC = () => {
         if (activePlatform === 'ALL') {
           const sourceElem = item.querySelector('source');
           author = sourceElem?.textContent || 'Google News';
-          // Google News often puts source in title "Title - Source"
           const lastDashIndex = title.lastIndexOf(' - ');
           if (lastDashIndex !== -1) {
             author = title.substring(lastDashIndex + 3);
@@ -71,7 +53,7 @@ const NewsFeed: React.FC = () => {
           }
         }
 
-        // Strip HTML from description and truncate
+        // Strip HTML from description
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = description;
         let textSummary = tempDiv.textContent || tempDiv.innerText || title;
@@ -93,12 +75,57 @@ const NewsFeed: React.FC = () => {
       });
 
       setNewsItems(parsedNews);
-    } catch (err) {
-      console.error("RSS Fetch Error:", err);
-      if (activePlatform === 'ALL') {
-        setNewsItems(FALLBACK_NEWS_DATA);
+    } catch (e) {
+      console.error("XML Parse Error:", e);
+      setNewsItems([]);
+    }
+  };
+
+  const fetchRSS = async () => {
+    setLoading(true);
+    let rssUrl = '';
+
+    // Step 1: Determine Primary URL
+    if (activePlatform === 'TodayGunsan') {
+      rssUrl = '/api/rss/todaygunsan'; // Try Vercel/Local Proxy first
+    } else {
+      // Google News always needs AllOrigins or similar
+      const googleUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
+      rssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(googleUrl)}`;
+    }
+
+    try {
+      const response = await fetch(rssUrl);
+      if (!response.ok) throw new Error('Primary fetch failed');
+
+      // Handle Primary Response
+      if (activePlatform === 'TodayGunsan') {
+        const xmlText = await response.text();
+        if (!xmlText.trim().startsWith('<')) throw new Error('Invalid XML from Proxy');
+        parseXmlAndSetState(xmlText);
       } else {
-        setNewsItems([]);
+        const data = await response.json(); // AllOrigins returns JSON
+        parseXmlAndSetState(data.contents);
+      }
+
+    } catch (primaryError) {
+      console.warn("Primary fetch failed, attempting fallback...", primaryError);
+
+      // Step 2: Fallback Strategy (Only for TodayGunsan)
+      if (activePlatform === 'TodayGunsan') {
+        try {
+          // Fallback to AllOrigins if local proxy fails
+          const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
+          const res = await fetch(fallbackUrl);
+          const data = await res.json();
+          parseXmlAndSetState(data.contents);
+        } catch (fallbackError) {
+          console.error("Fallback failed:", fallbackError);
+          setNewsItems([]);
+        }
+      } else {
+        // Google News failed on AllOrigins - no other fallback
+        setNewsItems(FALLBACK_NEWS_DATA);
       }
     } finally {
       setLoading(false);

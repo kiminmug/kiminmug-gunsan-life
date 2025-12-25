@@ -164,7 +164,8 @@ export const getDailyBriefing = async (): Promise<string> => {
   };
 
   const timeout = new Promise<string>((resolve) => {
-    setTimeout(() => resolve("오늘도 활기찬 군산의 하루가 시작되었습니다! (연결 지연)"), 15000);
+    // Extended timeout for slow Search tool (real-time data takes time)
+    setTimeout(() => resolve("오늘도 활기찬 군산의 하루가 시작되었습니다! (연결 지연 - 잠시 후 다시 시도해보세요)"), 90000);
   });
 
   return Promise.race([fetchBriefing(), timeout]);
