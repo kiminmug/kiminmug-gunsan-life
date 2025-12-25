@@ -158,20 +158,84 @@ export const MOCK_TIDES: TideInfo[] = [
 
 export const MOCK_EVENTS: LocalEvent[] = [
   {
-    id: 'e1',
-    title: '2024 군산 시간여행 축제',
-    dateRange: '10.04(금) ~ 10.06(일)',
-    location: '구시청 광장 및 시간여행마을',
+    id: 'e-1225',
+    title: '스노우버블쇼',
+    dateRange: '12.25(목)',
+    location: '예술의전당 대공연장',
     type: 'Festival',
-    description: '근대 역사를 테마로 한 군산의 대표 축제'
+    description: '크리스마스를 맞아 온 가족이 즐길 수 있는 환상적인 버블 퍼포먼스'
   },
   {
-    id: 'e2',
-    title: '은파 호수공원 버스킹',
-    dateRange: '매주 토요일 19:00',
-    location: '은파 수변무대',
+    id: 'e-1227',
+    title: '(사)군산시민오케스트라 제10회 정기연주회',
+    dateRange: '12.27(토)',
+    location: '예술의전당 대공연장',
     type: 'Culture',
-    description: '지역 예술인들과 함께하는 낭만 버스킹'
+    description: '군산 시민들로 구성된 오케스트라의 제10회 정기 연주회'
+  },
+  {
+    id: 'e-1229',
+    title: '조촌동 행정복지센터 신청사 업무 개시',
+    dateRange: '12.29(월)',
+    location: '조촌동 신청사 (부골1길 40)',
+    type: 'Notice',
+    description: '조촌동 행정복지센터가 새로운 청사로 이전하여 업무 시작'
+  },
+  {
+    id: 'e-1224',
+    title: '초대전 <그것... 참 자리도 좁지 또 좁네>',
+    dateRange: '12.24(수) 개막',
+    location: '장미갤러리 2층',
+    type: 'Culture',
+    description: '장미갤러리 2층에서 열리는 지역 예술가 초대전'
+  },
+  {
+    id: 'e-1222',
+    title: '제13회 군산여류화가회 정기전',
+    dateRange: '12.22(월) ~ 12.26(금)',
+    location: '예술의전당 제1전시실',
+    type: 'Culture',
+    description: '군산 지역 여성 화가들의 정기 전시 및 영·호남 작가 교류전'
+  },
+  {
+    id: 'e-1223',
+    title: '만화영화 <니코 : 산타 비행단의 모험>',
+    dateRange: '12.23(화)',
+    location: '군산어린이공연장',
+    type: 'Culture',
+    description: '크리스마스를 지키기 위해 하늘을 나는 꼬마 사슴 니코의 작전'
+  },
+  {
+    id: 'e-1220-1',
+    title: '수산물종합센터 건어매장 개장식',
+    dateRange: '12.20(토) 13:00',
+    location: '해망동 건어동 일원',
+    type: 'Notice',
+    description: '건어매장 개장을 기념하는 테이프 커팅식 및 퍼포먼스'
+  },
+  {
+    id: 'e-1220-2',
+    title: '가족뮤지컬 "전설의 황금똥"',
+    dateRange: '12.20(토)',
+    location: '군산어린이공연장',
+    type: 'Culture',
+    description: '오염된 밭을 살리기 위해 황금똥을 찾아 떠나는 참여형 환경 뮤지컬'
+  },
+  {
+    id: 'e-1218',
+    title: '군산시립예술단 <송년 음악회>',
+    dateRange: '12.18(목)',
+    location: '예술의전당 대공연장',
+    type: 'Culture',
+    description: '교향악단과 합창단이 함께하여 한 해를 마무리하는 웅장한 합동 공연'
+  },
+  {
+    id: 'e-1206',
+    title: '김창옥 토크콘서트 시즌5',
+    dateRange: '12.06(토)',
+    location: '예술의전당 대공연장',
+    type: 'Festival',
+    description: '소통 전문가 김창옥 교수가 전하는 유쾌하고 감동적인 강연 콘서트'
   }
 ];
 
