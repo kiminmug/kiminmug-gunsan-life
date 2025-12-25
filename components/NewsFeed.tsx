@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NEWS_CATEGORIES, FALLBACK_NEWS_DATA, VIDEO_NEWS_DATA, KCN_YOUTUBE_URL, TODAY_GUNSAN_RSS_URL } from '../constants';
-import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft, AlertCircle } from 'lucide-react';
+import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft, AlertCircle, Info } from 'lucide-react';
 import { NewsItem } from '../types';
 
 const NewsFeed: React.FC = () => {
@@ -303,16 +303,29 @@ const NewsFeed: React.FC = () => {
           return (
             <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white p-4">
 
-              {/* 1. Designed Description Box */}
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 mb-8 text-center shadow-sm">
-                <p className="text-slate-700 leading-relaxed font-medium break-keep">
-                  각 언론의 군산뉴스 소식을 전하기 위하여<br />
-                  <span className="text-blue-600 font-bold">언론사 홈페이지</span>로 연결하였습니다.
-                </p>
-                <div className="w-10 h-[1px] bg-slate-200 mx-auto my-3"></div>
-                <p className="text-slate-500 text-sm">
-                  저작권 보호를 위하여 새 페이지 이동합니다
-                </p>
+              {/* 1. Designed Description Box (Premium UI) */}
+              <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-8 text-center shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <AlertCircle size={64} className="text-blue-600" />
+                </div>
+
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="bg-white p-2 rounded-full shadow-sm mb-3 border-2 border-blue-100">
+                    <Info size={24} className="text-blue-600" />
+                  </div>
+
+                  <p className="text-gray-800 leading-relaxed font-bold text-lg break-keep mb-2">
+                    각 언론사의 <span className="text-blue-600">군산 뉴스</span>를<br />
+                    빠르고 정확하게 전달합니다
+                  </p>
+
+                  <div className="w-12 h-[2px] bg-blue-100 mx-auto my-3"></div>
+
+                  <p className="text-slate-500 text-sm font-medium leading-snug">
+                    <span className="block mb-1">저작권 보호를 위해</span>
+                    언론사 홈페이지로 <span className="text-slate-700 font-bold">직접 연결</span>됩니다.
+                  </p>
+                </div>
               </div>
 
               {/* 2. Stylish Section Title */}
