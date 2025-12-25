@@ -208,7 +208,7 @@ export const getDailyBriefing = async (): Promise<string> => {
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 ${days[today.getDay()]}요일`;
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
 
-      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 원인: ${errorMessage})\n\n행복 가득한 하루 되시길 바랍니다.`;
+      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 원인 [v2]: ${errorMessage})\n\n행복 가득한 하루 되시길 바랍니다.`;
     }
   };
 
