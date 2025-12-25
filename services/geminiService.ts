@@ -118,67 +118,42 @@ export const getRealtimeAlerts = async (): Promise<Partial<AppNotification>[]> =
   }
 };
 
-// Helper for fallback generation
-const generateWithFallback = async (prompt: string, useTools: boolean = true) => {
-  const genAI = getClient();
-
-  // Strategy: Try efficient model with tools -> Pro model with tools -> Efficient model no tools -> Legacy model
-  const attempts = [
-    { model: "gemini-1.5-flash", tools: useTools },
-    { model: "gemini-1.5-flash-001", tools: useTools },
-    { model: "gemini-1.5-pro", tools: useTools },
-    { model: "gemini-1.5-flash", tools: false }, // Fallback: try without search if search is broken
-    { model: "gemini-pro", tools: false } // Last resort: legacy model
-  ];
-
-  let lastError;
-
-  for (const attempt of attempts) {
-    try {
-      const config: any = { model: attempt.model };
-      if (attempt.tools) {
-        config.tools = [{ googleSearch: {} }];
-      }
-
-      const modelInstance = genAI.getGenerativeModel(config);
-      const result = await modelInstance.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
-    } catch (e) {
-      console.warn(`Failed with model ${attempt.model} (tools=${attempt.tools}):`, e);
-      lastError = e;
-      // Continue to next attempt
-    }
-  }
-
-  throw lastError;
-};
-
 export const getDailyBriefing = async (): Promise<string> => {
   const fetchBriefing = async () => {
     try {
       const today = new Date();
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
+      const genAI = getClient();
+      // Debug Strategy: Use simplest possible call (No Tools, Flash Model)
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
       const prompt = `
         오늘은 ${dateStr}입니다. 군산시민을 위한 '오늘의 브리핑'을 작성해주세요.
-        가능하다면 Google Search를 사용하여 다음 정보를 포함하세요:
-        1. [날짜]: 양력/음력/절기.
-        2. [군산 날씨]: 오늘/내일 상세 날씨.
-        3. [군산 뉴스]: 최근 주요 뉴스 3가지.
-        4. [인사말]: 군산 사투리 조금 섞어서.
+        (검색 기능 없이 기존 지식으로만 작성)
         
-        형식: 마크다운. 첫 줄 제목: 'YYYY년 M월 D일 군산 소식 브리핑'
+        1. [날짜]: 양력/음력.
+        2. [군산 날씨]: (정보 없음 - 날씨 앱 참조 권유)
+        3. [인사말]: 따뜻한 아침 인사.
+        
+        형식: 마크다운.
       `;
 
-      return await generateWithFallback(prompt, true);
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
 
     } catch (e: any) {
       console.error("Briefing Error:", e);
       const today = new Date();
       const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+
+      // Debug Env Var Loading
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY || "";
+      const maskedKey = apiKey ? `${apiKey.substring(0, 5)}...` : "NONE";
+
       const errorMessage = e instanceof Error ? e.message : JSON.stringify(e);
-      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 원인 [FB]: ${errorMessage})\n\n행복 가득한 하루 되시길 바랍니다.`;
+      return `${dateStr}\n\n오늘도 활기찬 군산의 하루가 시작되었습니다!\n\n(오류 [BASIC-TEST]: 키=${maskedKey}, 에러=${errorMessage})\n\n행복 가득한 하루 되시길 바랍니다.`;
     }
   };
 
