@@ -91,7 +91,9 @@ const NewsFeed: React.FC = () => {
 
     // Step 1: Determine Primary URL
     if (activePlatform === 'TodayGunsan') {
-      rssUrl = '/api/rss/todaygunsan'; // Try Vercel/Local Proxy first
+      // Use our new robust Serverless Function Proxy (handles HTTP->HTTPS & CORS)
+      // Destination: http://www.todaygunsan.co.kr/rss/S1N1.xml
+      rssUrl = `/api/proxy?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
     } else {
       // Google News always needs AllOrigins or similar
       const googleUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
@@ -113,32 +115,16 @@ const NewsFeed: React.FC = () => {
       }
 
     } catch (primaryError: any) {
-      console.warn("Primary fetch failed, attempting fallback...", primaryError);
+      console.warn("Primary proxy failed, attempting fallback...", primaryError);
 
       // Step 2: Fallback Strategy
       if (activePlatform === 'TodayGunsan') {
         try {
-          // Fallback to rss2json (Robust Server-side Parser)
-          const fallbackUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
+          // Fallback to AllOrigins (known to work if our serverless function fails)
+          const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
           const res = await fetch(fallbackUrl);
           const data = await res.json();
-
-          if (data.status === 'ok') {
-            const mappedItems: NewsItem[] = data.items.map((item: any, idx: number) => ({
-              id: `rss-json-${idx}`,
-              title: item.title,
-              category: '뉴스',
-              source: '투데이군산',
-              platform: 'TodayGunsan',
-              originalUrl: item.link,
-              date: item.pubDate,
-              summary: item.description?.replace(/<[^>]*>/g, '').substring(0, 50) + '...', // Strip HTML
-              content: ''
-            }));
-            setNewsItems(mappedItems);
-          } else {
-            throw new Error('rss2json failed');
-          }
+          parseXmlAndSetState(data.contents); // AllOrigins wraps content in .contents
         } catch (fallbackError: any) {
           console.error("Fallback failed:", fallbackError);
           setErrorMsg(fallbackError.message || "뉴스 피드를 불러올 수 없습니다.");
