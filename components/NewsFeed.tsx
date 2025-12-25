@@ -298,45 +298,66 @@ const NewsFeed: React.FC = () => {
         const category = NEWS_CATEGORIES.find(c => c.name === activeMainTab);
         if (!category) return null;
 
+        // Special Layout for '군산언론'
+        if (category.name === '군산언론') {
+          return (
+            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white p-4">
+
+              {/* 1. Designed Description Box */}
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 mb-8 text-center shadow-sm">
+                <p className="text-slate-700 leading-relaxed font-medium break-keep">
+                  각 언론의 군산뉴스 소식을 전하기 위하여<br />
+                  <span className="text-blue-600 font-bold">언론사 홈페이지</span>로 연결하였습니다.
+                </p>
+                <div className="w-10 h-[1px] bg-slate-200 mx-auto my-3"></div>
+                <p className="text-slate-500 text-sm">
+                  저작권 보호를 위하여 새 페이지 이동합니다
+                </p>
+              </div>
+
+              {/* 2. Stylish Section Title */}
+              <div className="flex items-center justify-center gap-2 mb-5">
+                <div className="h-1 w-6 bg-blue-600 rounded-full"></div>
+                <h2 className="text-xl font-bold text-gray-900">군산 언론사 (링크)</h2>
+                <div className="h-1 w-6 bg-blue-600 rounded-full"></div>
+              </div>
+
+              {/* 3. Link Grid (Larger Text) */}
+              {category.subLinks && (
+                <div className="grid grid-cols-2 gap-4">
+                  {category.subLinks.map((link, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleOpenExternal(link.url)}
+                      className="flex flex-col items-center justify-center py-5 bg-white border-2 border-slate-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-md transition-all active:scale-95 group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gray-700 text-lg group-hover:text-blue-700 transition-colors">
+                          {link.name}
+                        </span>
+                        <ExternalLink size={18} className="text-gray-300 group-hover:text-blue-500" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // Default Layout for other categories (Image only)
         return (
           <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center">
-            {/* Header Image (User Provided Menu Visual) */}
-            <div className="w-full">
+            <div
+              onClick={() => category.url && handleOpenExternal(category.url)}
+              className="w-full cursor-pointer hover:opacity-95 transition-opacity"
+            >
               <img
                 src={category.image}
                 alt={category.name}
                 className="w-full h-auto object-contain"
               />
             </div>
-
-            {/* If Sub-links exist (e.g. Gunsan Media), show clickable Grid */}
-            {category.subLinks && (
-              <div className="w-full p-4 grid grid-cols-2 gap-3 bg-gray-50">
-                {category.subLinks.map((link, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleOpenExternal(link.url)}
-                    className="flex flex-col items-center justify-center p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-blue-500 hover:shadow-md transition-all active:scale-95 h-16"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <ExternalLink size={16} className="text-blue-600" />
-                      <span className="font-bold text-gray-800 text-sm tracking-tight">{link.name}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Fallback for Image-only categories (Old behavior) */}
-            {!category.subLinks && (
-              <div
-                onClick={() => category.url && handleOpenExternal(category.url)}
-                className="w-full h-full flex-1 cursor-pointer hover:opacity-95 transition-opacity"
-              >
-                {/* Image is already rendered above, but if it was clickable entire-body... */}
-                {/* For now, just keeping the top image as the main visual */}
-              </div>
-            )}
           </div>
         );
     }
