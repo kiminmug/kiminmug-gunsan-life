@@ -89,54 +89,64 @@ const NewsFeed: React.FC = () => {
 
     let rssUrl = '';
 
-    // Step 1: Determine Primary URL
-    if (activePlatform === 'TodayGunsan') {
-      // Use our new robust Serverless Function Proxy (handles HTTP->HTTPS & CORS)
-      // Destination: http://www.todaygunsan.co.kr/rss/S1N1.xml
-      rssUrl = `/api/proxy?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
-    } else {
-      // Google News always needs AllOrigins or similar
-      const googleUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
-      rssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(googleUrl)}`;
-    }
+    // Strategy: AllOrigins (Primary) -> rss2json (Secondary) -> Static Mock (Final Fallback)
+    const encodedUrl = encodeURIComponent(TODAY_GUNSAN_RSS_URL);
 
+    // 1. Try AllOrigins
     try {
-      const response = await fetch(rssUrl);
-      if (!response.ok) throw new Error(`Primary Fetch Failed (${response.status})`);
-
-      // Handle Primary Response
       if (activePlatform === 'TodayGunsan') {
-        const xmlText = await response.text();
-        if (!xmlText.trim().startsWith('<')) throw new Error('Invalid XML from Proxy');
-        parseXmlAndSetState(xmlText);
-      } else {
-        const data = await response.json(); // AllOrigins returns JSON
+        const response = await fetch(`https://api.allorigins.win/get?url=${encodedUrl}`);
+        if (!response.ok) throw new Error('AllOrigins Failed');
+        const data = await response.json();
         parseXmlAndSetState(data.contents);
-      }
-
-    } catch (primaryError: any) {
-      console.warn("Primary proxy failed, attempting fallback...", primaryError);
-
-      // Step 2: Fallback Strategy
-      if (activePlatform === 'TodayGunsan') {
-        try {
-          // Fallback to AllOrigins (known to work if our serverless function fails)
-          const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(TODAY_GUNSAN_RSS_URL)}`;
-          const res = await fetch(fallbackUrl);
-          const data = await res.json();
-          parseXmlAndSetState(data.contents); // AllOrigins wraps content in .contents
-        } catch (fallbackError: any) {
-          console.error("Fallback failed:", fallbackError);
-          setErrorMsg(fallbackError.message || "뉴스 피드를 불러올 수 없습니다.");
-          setNewsItems([]);
-        }
+        return; // Success
       } else {
-        // Google News failed on AllOrigins - no other fallback
-        setNewsItems(FALLBACK_NEWS_DATA);
+        // Google News
+        const googleUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
+        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(googleUrl)}`);
+        if (!response.ok) throw new Error('Google News Failed');
+        const data = await response.json();
+        parseXmlAndSetState(data.contents);
+        return; // Success
       }
-    } finally {
-      setLoading(false);
+    } catch (err1) {
+      console.warn("Attempt 1 (AllOrigins) failed:", err1);
+
+      if (activePlatform === 'TodayGunsan') {
+        // 2. Try rss2json
+        try {
+          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
+          if (!res.ok) throw new Error('rss2json Failed');
+          const data = await res.json();
+          if (data.status !== 'ok') throw new Error('rss2json status error');
+
+          const mappedItems: NewsItem[] = data.items.map((item: any, idx: number) => ({
+            id: `rss-json-${idx}`,
+            title: item.title,
+            category: '뉴스',
+            source: '투데이군산',
+            platform: 'TodayGunsan',
+            originalUrl: item.link,
+            date: item.pubDate,
+            summary: item.description?.replace(/<[^>]*>/g, '').substring(0, 50) + '...',
+            content: ''
+          }));
+          setNewsItems(mappedItems);
+          return; // Success
+        } catch (err2) {
+          console.warn("Attempt 2 (rss2json) failed:", err2);
+        }
+      }
     }
+
+    // 3. Final Fallback: Static Data (Never show error screen)
+    console.warn("All fetches failed, using static fallback.");
+    const fallbackWithLabel = FALLBACK_NEWS_DATA.map(item => ({
+      ...item,
+      source: activePlatform === 'TodayGunsan' ? '투데이군산(저장됨)' : item.source
+    }));
+    setNewsItems(fallbackWithLabel);
+    setLoading(false);
   };
 
   useEffect(() => {
