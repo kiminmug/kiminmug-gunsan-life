@@ -148,8 +148,8 @@ const AiConcierge: React.FC = () => {
               </div>
               <div
                 className={`p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${msg.role === 'user'
-                    ? 'bg-blue-500 text-white rounded-tr-none shadow-md'
-                    : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none shadow-sm'
+                  ? 'bg-blue-500 text-white rounded-tr-none shadow-md'
+                  : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none shadow-sm'
                   }`}
               >
                 {/* Render links if present */}
@@ -211,14 +211,14 @@ const AiConcierge: React.FC = () => {
           <button
             onClick={handleLocationShare}
             disabled={isLoading || isLocating}
-            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${isLocating ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${isLocating ? 'bg-blue-50 border-blue-200' : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
               }`}
             title="현재 위치 공유"
           >
             {isLocating ? (
               <Loader2 size={18} className="text-blue-500 animate-spin" />
             ) : (
-              <MapPin size={18} className="text-gray-500" />
+              <MapPin size={18} className="text-blue-600" />
             )}
           </button>
 
