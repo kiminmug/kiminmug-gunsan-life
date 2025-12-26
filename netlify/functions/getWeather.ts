@@ -75,7 +75,7 @@ export const handler: Handler = async (event, context) => {
 
         // Construct URLs manually to ensure key is NOT encoded
         const ncstUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${API_KEY}&pageNo=1&numOfRows=10&dataType=JSON&base_date=${ncstDate}&base_time=${ncstTime}&nx=${NX}&ny=${NY}`;
-        const fcstUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&pageNo=1&numOfRows=300&dataType=JSON&base_date=${fcstDate}&base_time=${fcstTime}&nx=${NX}&ny=${NY}`;
+        const fcstUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${fcstDate}&base_time=${fcstTime}&nx=${NX}&ny=${NY}`;
 
         console.log(`Fetching NCST: ${ncstDate} ${ncstTime}`);
         console.log(`Fetching FCST: ${fcstDate} ${fcstTime}`);

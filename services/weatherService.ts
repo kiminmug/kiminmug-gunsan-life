@@ -55,7 +55,7 @@ export const fetchKMAWeather = async () => {
 
         // Convert to Array
         const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-        const forecastList = Object.keys(dailyForecasts).slice(0, 3).map(dateStr => {
+        const forecastList = Object.keys(dailyForecasts).slice(0, 5).map(dateStr => {
             const data = dailyForecasts[dateStr];
 
             const maxTemp = data.high !== undefined ? data.high : Math.max(...data.temp);
