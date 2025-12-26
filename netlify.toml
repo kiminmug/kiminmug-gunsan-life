@@ -12,3 +12,14 @@
   to = "http://www.todaygunsan.co.kr/rss/S1N1.xml"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/kma-api/*"
+  to = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
