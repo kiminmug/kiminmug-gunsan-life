@@ -55,12 +55,12 @@ const App: React.FC = () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: '군산 라이프',
+          title: '군산 Life',
           text: '군산시민을 위한 필수 앱! 각종정보, 뉴스 날씨 등 한번에 확인하세요',
-          url: window.location.href,
+          url: 'https://gunsannews.net',
         });
       } else {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText('https://gunsannews.net');
         alert("주소가 복사되었습니다! 친구에게 붙여넣기로 공유해보세요.");
       }
     } catch (error) {
@@ -123,7 +123,7 @@ const App: React.FC = () => {
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-3xl font-extrabold text-gray-900 leading-tight">
                   하루에 한번보는<br />
-                  <span className="text-blue-600">군산정보</span>
+                  <span className="text-blue-600">군산 Life</span>
                 </h2>
                 <button
                   onClick={handleShare}

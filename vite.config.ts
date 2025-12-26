@@ -24,8 +24,8 @@ export default defineConfig(({ mode }) => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
         manifest: {
-          name: '군산 라이프',
-          short_name: '군산 라이프',
+          name: '군산 Life',
+          short_name: '군산 Life',
           description: '군산시 행사, 뉴스, 물때 정보를 한눈에!',
           theme_color: '#ffffff',
           icons: [
