@@ -1,97 +1,23 @@
 import axios from 'axios';
 
-const API_KEY = 'faf3639d5f28bdc424391ff8e46e29f3070824bccd8b6b633ee6c566cab1d90a';
-// Gunsan Grid Coordinates
-const NX = 63;
-const NY = 126;
-
-// Helper to get base_date and base_time for Ultra Short Term Forecast (Live usually)
-const getCurrentBaseTime = () => {
-    const now = new Date();
-
-    if (now.getMinutes() < 45) {
-        now.setHours(now.getHours() - 1);
-    }
-
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-
-    return {
-        base_date: `${year}${month}${day}`,
-        base_time: `${hours}00`
-    };
-};
-
-const getForecastBaseTime = () => {
-    const now = new Date();
-    const validHours = [2, 5, 8, 11, 14, 17, 20, 23];
-
-    let currentHour = now.getHours();
-    if (now.getMinutes() < 15) {
-        currentHour -= 1;
-    }
-
-    let baseHour = validHours.slice().reverse().find(h => h <= currentHour);
-
-    let date = now;
-    if (baseHour === undefined) {
-        baseHour = 23;
-        date = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(baseHour).padStart(2, '0');
-
-    return {
-        base_date: `${year}${month}${day}`,
-        base_time: `${hours}00`
-    };
-};
-
 export const fetchKMAWeather = async () => {
     try {
-        const { base_date: ncstDate, base_time: ncstTime } = getCurrentBaseTime();
+        // Call our own Netlify Function
+        const response = await axios.get('/.netlify/functions/getWeather');
 
-        // 1. Get Real-time Status (UltraSrtNcst)
-        const ncstParams = {
-            serviceKey: API_KEY,
-            pageNo: 1,
-            numOfRows: 10,
-            dataType: 'JSON',
-            base_date: ncstDate,
-            base_time: ncstTime,
-            nx: NX,
-            ny: NY
-        };
+        if (!response.data || !response.data.ncst || !response.data.fcst) {
+            throw new Error("Invalid Function Response");
+        }
 
-        const ncstRes = await axios.get('/kma-api/getUltraSrtNcst', { params: ncstParams });
+        const ncstRes = response.data.ncst;
+        const fcstRes = response.data.fcst;
 
-        // 2. Get Forecast (VilageFcst)
-        const { base_date: fcstDate, base_time: fcstTime } = getForecastBaseTime();
-
-        const fcstParams = {
-            serviceKey: API_KEY,
-            pageNo: 1,
-            numOfRows: 300,
-            dataType: 'JSON',
-            base_date: fcstDate,
-            base_time: fcstTime,
-            nx: NX,
-            ny: NY
-        };
-
-        const fcstRes = await axios.get('/kma-api/getVilageFcst', { params: fcstParams });
-
-        if (!ncstRes.data?.response?.body || !fcstRes.data?.response?.body) {
-            console.error("KMA Invalid Response Body", ncstRes.data, fcstRes.data);
+        if (!ncstRes.response?.body || !fcstRes.response?.body) {
+            console.error("KMA Invalid Response Body from Function", ncstRes, fcstRes);
             throw new Error("KMA API Error: Invalid Response");
         }
 
-        const ncstItems = ncstRes.data.response.body.items.item;
+        const ncstItems = ncstRes.response.body.items.item;
 
         // Parse Current
         const currentData: any = {};
@@ -111,7 +37,7 @@ export const fetchKMAWeather = async () => {
         }
 
         // Parse Forecast
-        const fcstItems = fcstRes.data.response.body.items.item;
+        const fcstItems = fcstRes.response.body.items.item;
         const dailyForecasts: any = {};
 
         fcstItems.forEach((item: any) => {
@@ -175,7 +101,6 @@ export const fetchKMAWeather = async () => {
 
     } catch (e) {
         console.error("KMA Fetch Error", e);
-        // Fallback or specific error handling
-        return { error: "기상청 연결 실패 - API 키 또는 네트워크 확인 필요" };
+        return { error: "기상청 연결 실패 - API 키를 확인해주세요." };
     }
 };

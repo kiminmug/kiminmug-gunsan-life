@@ -15,11 +15,6 @@ export default defineConfig(({ mode }) => {
           target: 'http://www.todaygunsan.co.kr/rss/S1N1.xml',
           changeOrigin: true,
           rewrite: (path) => '',
-        },
-        '/kma-api': {
-          target: 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/kma-api/, ''),
         }
       },
     },
