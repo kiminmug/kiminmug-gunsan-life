@@ -42,6 +42,31 @@ const NewsFeed: React.FC = () => {
         const pubDateStr = item.querySelector('pubDate')?.textContent;
         const description = item.querySelector('description')?.textContent || '';
 
+        // Image Extraction Logic
+        let imageUrl: string | undefined = undefined;
+
+        // 1. Check enclosure
+        const enclosure = item.querySelector('enclosure');
+        if (enclosure && enclosure.getAttribute('type')?.startsWith('image')) {
+          imageUrl = enclosure.getAttribute('url') || undefined;
+        }
+
+        // 2. Check media:content (Google News often uses this)
+        if (!imageUrl) {
+          const mediaContent = item.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content')[0];
+          if (mediaContent) {
+            imageUrl = mediaContent.getAttribute('url') || undefined;
+          }
+        }
+
+        // 3. Check for <img> in description
+        if (!imageUrl && description) {
+          const imgMatch = description.match(/<img[^>]+src="([^">]+)"/);
+          if (imgMatch) {
+            imageUrl = imgMatch[1];
+          }
+        }
+
         if (pubDateStr) {
           const dateObj = new Date(pubDateStr);
           if (!isNaN(dateObj.getTime())) {
@@ -58,8 +83,8 @@ const NewsFeed: React.FC = () => {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = description;
         let textSummary = tempDiv.textContent || tempDiv.innerText || title;
-        if (textSummary.length > 30) {
-          textSummary = textSummary.substring(0, 30) + '...';
+        if (textSummary.length > 50) {
+          textSummary = textSummary.substring(0, 50) + '...';
         }
 
         return {
@@ -71,6 +96,7 @@ const NewsFeed: React.FC = () => {
           originalUrl: link,
           date: displayDate,
           summary: textSummary,
+          imageUrl: imageUrl, // Add image url
           content: ''
         };
       });
@@ -87,66 +113,36 @@ const NewsFeed: React.FC = () => {
     setErrorMsg(null);
     setNewsItems([]);
 
-    let rssUrl = '';
-
-    // Strategy: AllOrigins (Primary) -> rss2json (Secondary) -> Static Mock (Final Fallback)
     const encodedUrl = encodeURIComponent(TODAY_GUNSAN_RSS_URL);
+    let targetUrl = '';
 
-    // 1. Try AllOrigins
-    try {
-      if (activePlatform === 'TodayGunsan') {
-        const response = await fetch(`https://api.allorigins.win/get?url=${encodedUrl}`);
-        if (!response.ok) throw new Error('AllOrigins Failed');
-        const data = await response.json();
-        parseXmlAndSetState(data.contents);
-        return; // Success
-      } else {
-        // Google News
-        const googleUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
-        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(googleUrl)}`);
-        if (!response.ok) throw new Error('Google News Failed');
-        const data = await response.json();
-        parseXmlAndSetState(data.contents);
-        return; // Success
-      }
-    } catch (err1) {
-      console.warn("Attempt 1 (AllOrigins) failed:", err1);
-
-      if (activePlatform === 'TodayGunsan') {
-        // 2. Try rss2json
-        try {
-          const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodedUrl}`);
-          if (!res.ok) throw new Error('rss2json Failed');
-          const data = await res.json();
-          if (data.status !== 'ok') throw new Error('rss2json status error');
-
-          const mappedItems: NewsItem[] = data.items.map((item: any, idx: number) => ({
-            id: `rss-json-${idx}`,
-            title: item.title,
-            category: '뉴스',
-            source: '투데이군산',
-            platform: 'TodayGunsan',
-            originalUrl: item.link,
-            date: item.pubDate,
-            summary: item.description?.replace(/<[^>]*>/g, '').substring(0, 50) + '...',
-            content: ''
-          }));
-          setNewsItems(mappedItems);
-          return; // Success
-        } catch (err2) {
-          console.warn("Attempt 2 (rss2json) failed:", err2);
-        }
-      }
+    if (activePlatform === 'TodayGunsan') {
+      targetUrl = `/.netlify/functions/getNews?url=${encodedUrl}`;
+    } else {
+      const googleUrl = `https://news.google.com/rss/search?q=${encodeURIComponent('군산')}&hl=ko&gl=KR&ceid=KR:ko`;
+      targetUrl = `/.netlify/functions/getNews?url=${encodeURIComponent(googleUrl)}`;
     }
 
-    // 3. Final Fallback: Static Data (Never show error screen)
-    console.warn("All fetches failed, using static fallback.");
-    const fallbackWithLabel = FALLBACK_NEWS_DATA.map(item => ({
-      ...item,
-      source: activePlatform === 'TodayGunsan' ? '투데이군산(저장됨)' : item.source
-    }));
-    setNewsItems(fallbackWithLabel);
-    setLoading(false);
+    try {
+      const response = await fetch(targetUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const xmlText = await response.text();
+      parseXmlAndSetState(xmlText);
+    } catch (err) {
+      console.warn("Fetch failed:", err);
+      // Fallback
+      if (activePlatform === 'TodayGunsan') {
+        // Last resort fallback
+        const fallbackWithLabel = FALLBACK_NEWS_DATA.map(item => ({
+          ...item,
+          source: activePlatform === 'TodayGunsan' ? '투데이군산(저장됨)' : item.source
+        }));
+        setNewsItems(fallbackWithLabel);
+      }
+      setErrorMsg("뉴스를 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -250,20 +246,22 @@ const NewsFeed: React.FC = () => {
                         <span className="flex items-center gap-1">
                           <Calendar size={10} /> {news.date}
                         </span>
-                        <span className="w-px h-2.5 bg-gray-300"></span>
-                        <span className="flex items-center gap-1">
-                          {activePlatform === 'KCN' ? '유튜브에서 보기' : '원문 보기'}
-                          <ExternalLink size={10} />
-                        </span>
                       </div>
                     </div>
 
-                    {activePlatform === 'KCN' && (
-                      <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative">
-                        <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                          <PlayCircle size={24} className="text-white/80" />
-                        </div>
+                    {/* Image Logic */}
+                    {(news.imageUrl || activePlatform === 'KCN') && (
+                      <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative border border-gray-100">
+                        {news.imageUrl ? (
+                          <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                        ) : (activePlatform === 'KCN' &&
+                          <>
+                            <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                              <PlayCircle size={24} className="text-white/80" />
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
