@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Cloud, CloudRain, CloudSnow, CloudSun, RefreshCw, AlertCircle, Info, Waves, Anchor } from 'lucide-react';
-import { getRealtimeWeather } from '../services/geminiService';
+import { fetchKMAWeather } from '../services/weatherService';
 import { DailyForecast } from '../types';
 import { MOCK_TIDES } from '../constants';
 
@@ -28,7 +28,7 @@ const WeatherWidget: React.FC = () => {
   const fetchWeather = async () => {
     setLoading(true);
     setError(null);
-    const data = await getRealtimeWeather();
+    const data = await fetchKMAWeather();
     if (data && data.current) {
       setWeather(data);
     } else {
@@ -80,7 +80,7 @@ const WeatherWidget: React.FC = () => {
                 군산시
               </h2>
               <p className="text-blue-100 text-xs mt-1 font-medium bg-white/10 inline-block px-2 py-0.5 rounded-full">
-                실시간 데이터 (Google Search)
+                기상청 공공데이터 (실시간)
               </p>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md border ${current.dustStatus?.includes('좋음') ? 'bg-green-500/20 border-green-400' :
