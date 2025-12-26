@@ -56,7 +56,7 @@ const App: React.FC = () => {
       if (navigator.share) {
         await navigator.share({
           title: '군산 라이프',
-          text: '군산 시민을 위한 필수 앱! 날씨, 물때, 맛집까지 한번에 확인하세요.',
+          text: '군산시민을 위한 필수 앱! 각종정보, 뉴스 날씨 등 한번에 확인하세요',
           url: window.location.href,
         });
       } else {
