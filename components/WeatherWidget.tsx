@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Cloud, CloudRain, CloudSnow, CloudSun, RefreshCw, AlertCircle, Info, Waves, Anchor } from 'lucide-react';
-import { fetchKMAWeather } from '../services/weatherService';
-import { DailyForecast } from '../types';
-import { MOCK_TIDES } from '../constants';
+import { Sun, Cloud, CloudRain, CloudSnow, CloudSun, RefreshCw, AlertCircle, Info, Waves } from 'lucide-react';
+import { fetchKMAWeather, fetchTides } from '../services/weatherService';
 
 const getWeatherIcon = (condition: string, size: number = 24, className: string = '') => {
   const cond = condition?.toLowerCase() || '';
@@ -24,28 +22,43 @@ const WeatherWidget: React.FC = () => {
   const [weather, setWeather] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tideData, setTideData] = useState<any[]>([]);
 
-  const fetchWeather = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
-    const data = await fetchKMAWeather();
-    if (data && data.current) {
-      setWeather(data);
-    } else {
-      setError(data?.error || "날씨 정보를 가져오지 못했습니다.");
+    try {
+      const [weatherRes, tideRes] = await Promise.all([
+        fetchKMAWeather(),
+        fetchTides()
+      ]);
+
+      if (weatherRes && weatherRes.current) {
+        setWeather(weatherRes);
+      } else {
+        setError(weatherRes?.error || "날씨 정보를 불러올 수 없습니다.");
+      }
+
+      if (tideRes && Array.isArray(tideRes)) {
+        setTideData(tideRes);
+      }
+    } catch (e) {
+      console.error("Data Fetch Error", e);
+      setError("데이터 로딩 실패");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    fetchWeather();
+    fetchData();
   }, []);
 
   if (loading) {
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-[400px] text-gray-400">
         <RefreshCw size={32} className="animate-spin mb-4 text-blue-500" />
-        <p className="text-sm font-medium">군산 실시간 날씨를 검색중...</p>
+        <p className="text-sm font-medium">군산 실시간 날씨 & 물때 검색중...</p>
       </div>
     );
   }
@@ -57,7 +70,7 @@ const WeatherWidget: React.FC = () => {
         <p className="text-gray-900 font-bold mb-1">일시적 오류</p>
         <p className="text-gray-500 text-sm mb-4">{error}</p>
         <button
-          onClick={fetchWeather}
+          onClick={fetchData}
           className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-md active:scale-95 transition-transform"
         >
           다시 시도
@@ -67,7 +80,6 @@ const WeatherWidget: React.FC = () => {
   }
 
   const { current, forecast } = weather;
-
 
   return (
     <div className="p-4 space-y-6 pb-20 animate-[fadeIn_0.4s_ease-out]">
@@ -125,7 +137,7 @@ const WeatherWidget: React.FC = () => {
           <h3 className="font-bold text-gray-800 flex items-center gap-1.5">
             <Info size={16} className="text-blue-500" /> 주간 예보
           </h3>
-          <button onClick={fetchWeather} className="text-gray-400 hover:text-blue-500 transition-colors">
+          <button onClick={fetchData} className="text-gray-400 hover:text-blue-500 transition-colors">
             <RefreshCw size={14} />
           </button>
         </div>
@@ -155,35 +167,24 @@ const WeatherWidget: React.FC = () => {
         </div>
       </div>
 
-      {weather.sourceUrl && (
-        <div className="text-center">
-          <a
-            href={weather.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] text-gray-400 underline hover:text-blue-500"
-          >
-            날씨 정보 출처 확인 (Google)
-          </a>
-        </div>
-      )}
-
-      {/* Tide Info Section - Moved from LifeHub */}
+      {/* Tide Info Section */}
       <div className="space-y-4">
-        {MOCK_TIDES.map((tideInfo, dayIdx) => (
+        {tideData.length > 0 ? tideData.map((tideInfo: any, dayIdx: number) => (
           <div key={dayIdx} className={`rounded-2xl p-6 text-white shadow-lg relative overflow-hidden ${dayIdx === 0 ? 'bg-gradient-to-br from-blue-500 to-cyan-600' : 'bg-white border border-gray-100'}`}>
             <h3 className={`font-bold text-lg mb-1 flex items-center gap-2 relative z-10 ${dayIdx === 0 ? 'text-white' : 'text-gray-800'}`}>
               <Waves size={24} className={dayIdx === 0 ? 'text-white' : 'text-blue-500'} />
-              {dayIdx === 0 ? '오늘 군산항 물때' : `${tideInfo.day} 물때표`}
+              {dayIdx === 0 ? '오늘 군산항 물때' : `${tideInfo.date} 물때표`}
             </h3>
-            <p className={`text-sm mb-4 relative z-10 ${dayIdx === 0 ? 'text-blue-100' : 'text-gray-500'}`}>{tideInfo.date} ({tideInfo.day})</p>
+            <p className={`text-sm mb-4 relative z-10 ${dayIdx === 0 ? 'text-blue-100' : 'text-gray-500'}`}>
+              {tideInfo.date}
+            </p>
 
             <div className="grid grid-cols-2 gap-3 relative z-10">
-              {tideInfo.tides.map((tide, idx) => (
+              {tideInfo.tides.map((tide: any, idx: number) => (
                 <div key={idx} className={`rounded-lg p-3 border ${dayIdx === 0 ? 'bg-white/10 backdrop-blur border-white/20' : 'bg-gray-50 border-gray-100'}`}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${tide.type === 'High' ? 'bg-red-400/80 text-white' : 'bg-blue-800/50 text-white'}`}>
-                      {tide.type === 'High' ? '만조 (고)' : '간조 (저)'}
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${tide.type === 'high' ? 'bg-red-400/80 text-white' : 'bg-blue-800/50 text-white'}`}>
+                      {tide.type === 'high' ? '만조 (고)' : '간조 (저)'}
                     </span>
                   </div>
                   <div className={`text-xl font-bold tracking-wider ${dayIdx === 0 ? 'text-white' : 'text-gray-800'}`}>{tide.time}</div>
@@ -193,12 +194,24 @@ const WeatherWidget: React.FC = () => {
             </div>
             {dayIdx === 0 && (
               <div className="mt-4 text-[10px] text-blue-200 text-center relative z-10">
-                ※ 낚시 및 해루질 시 안전에 유의하세요.
+                ※ 국립해양조사원 실시간 데이터
               </div>
             )}
           </div>
-        ))}
+        )) : (
+          <div className="text-center py-10 bg-gray-50 rounded-xl text-gray-400 text-sm">
+            물때 정보를 불러오는 중입니다...
+          </div>
+        )}
       </div>
+
+      {weather.sourceUrl && (
+        <div className="text-center mt-8">
+          <p className="text-[10px] text-gray-400">
+            데이터 출처: 기상청 & 국립해양조사원 (API)
+          </p>
+        </div>
+      )}
     </div>
   );
 };

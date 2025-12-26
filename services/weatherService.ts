@@ -104,3 +104,16 @@ export const fetchKMAWeather = async () => {
         return { error: "기상청 연결 실패 - API 키를 확인해주세요." };
     }
 };
+
+export const fetchTides = async () => {
+    try {
+        const response = await axios.get('/.netlify/functions/getTides');
+        if (!response.data || !Array.isArray(response.data)) {
+            throw new Error("Invalid Tide Response");
+        }
+        return response.data;
+    } catch (e) {
+        console.error("Tide Fetch Error", e);
+        return null;
+    }
+};
