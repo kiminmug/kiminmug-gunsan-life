@@ -11,7 +11,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ activeTab, unreadCount, onToggleNotifications }) => {
   const getTitle = () => {
     switch (activeTab) {
-      case AppTab.HOME: return '군산 라이프';
+      case AppTab.HOME: return '군산 Life';
       case AppTab.NEWS: {
         const today = new Date();
         const month = today.getMonth() + 1;
@@ -29,12 +29,12 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, unreadCount, onToggleNotific
     <div className="bg-white shadow-sm sticky top-0 z-50 h-14 flex items-center justify-between px-4">
       {/* Placeholder for left side balance */}
       <div className="w-8"></div>
-      
+
       <h1 className="text-lg font-bold text-gray-800 tracking-tight truncate max-w-[70%]">
         {getTitle()}
       </h1>
 
-      <button 
+      <button
         onClick={onToggleNotifications}
         className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100"
       >

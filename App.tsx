@@ -122,8 +122,8 @@ const App: React.FC = () => {
             <div className="mt-4 mb-2 animate-[fadeIn_0.5s_ease-out]">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-3xl font-extrabold text-gray-900 leading-tight">
-                  하루에 한번보는<br />
-                  <span className="text-blue-600">군산 Life</span>
+                  군산 시민과 함께 만드는<br />
+                  <span className="text-blue-600">오늘 이야기</span>
                 </h2>
                 <button
                   onClick={handleShare}
@@ -133,13 +133,9 @@ const App: React.FC = () => {
                   <Share2 size={20} />
                 </button>
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 mt-2">
-                {isUpdating ? (
-                  <><Loader2 size={12} className="animate-spin text-blue-500" /> 실시간 데이터 동기화 중...</>
-                ) : (
-                  <><CheckCircle2 size={12} className="text-green-500" /> 실시간 정보 업데이트 완료</>
-                )}
-              </div>
+              <p className="text-sm font-medium text-gray-500 mt-2">
+                뉴스·날씨·행사정보 오늘 필요한 정보를 확인하세요
+              </p>
             </div>
 
             {/* Daily Briefing Card */}
