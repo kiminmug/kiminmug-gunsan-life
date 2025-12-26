@@ -35,6 +35,20 @@ const App: React.FC = () => {
 
     setNotifications(prev => [newNotif, ...prev]);
     setActiveToast(newNotif);
+
+    // Trigger System Notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(newNotif.title, {
+          body: newNotif.message,
+          icon: '/icon.png',
+          badge: '/icon.png',
+          tag: newNotif.id // Prevent duplicate notifications
+        });
+      } catch (e) {
+        console.error("Notification trigger failed", e);
+      }
+    }
   };
 
   useEffect(() => {

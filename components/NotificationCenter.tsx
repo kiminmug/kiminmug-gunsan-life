@@ -10,9 +10,9 @@ interface NotificationCenterProps {
   onClearAll: () => void;
 }
 
-const NotificationCenter: React.FC<NotificationCenterProps> = ({ 
-  notifications, 
-  isOpen, 
+const NotificationCenter: React.FC<NotificationCenterProps> = ({
+  notifications,
+  isOpen,
   onClose,
   onMarkAsRead,
   onClearAll
@@ -27,10 +27,29 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     }
   };
 
+  // Check permission status
+  const [permission, setPermission] = React.useState<NotificationPermission>('default');
+
+  React.useEffect(() => {
+    if ('Notification' in window) {
+      setPermission(Notification.permission);
+    }
+  }, [isOpen]);
+
+  const requestPermission = async () => {
+    if (!('Notification' in window)) {
+      alert("이 브라우저는 알림을 지원하지 않습니다.");
+      return;
+    }
+
+    const result = await Notification.requestPermission();
+    setPermission(result);
+  };
+
   return (
     <div className="fixed inset-0 z-[60] flex flex-col max-w-md mx-auto">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose}></div>
-      
+
       <div className="relative mt-14 mx-2 bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[70vh] flex flex-col animate-[fadeIn_0.2s_ease-out]">
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h2 className="font-bold text-gray-800 flex items-center gap-2">
@@ -39,7 +58,15 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               {notifications.length}
             </span>
           </h2>
-          <div className="flex gap-3 text-xs">
+          <div className="flex gap-3 text-xs items-center">
+            {permission === 'default' && (
+              <button
+                onClick={requestPermission}
+                className="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-blue-700 transition"
+              >
+                알림 켜기
+              </button>
+            )}
             {notifications.length > 0 && (
               <button onClick={onClearAll} className="text-gray-500 hover:text-red-500 font-medium">
                 전체 삭제
@@ -51,6 +78,12 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
           </div>
         </div>
 
+        {permission === 'denied' && (
+          <div className="bg-orange-50 p-2 text-xs text-orange-800 text-center border-b border-orange-100">
+            ⚠ 알림 권한이 차단되었습니다. 브라우저 설정에서 허용해주세요.
+          </div>
+        )}
+
         <div className="overflow-y-auto flex-1 p-2 space-y-2 no-scrollbar">
           {notifications.length === 0 ? (
             <div className="py-12 flex flex-col items-center justify-center text-gray-400">
@@ -59,14 +92,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </div>
           ) : (
             notifications.map((notif) => (
-              <div 
-                key={notif.id} 
+              <div
+                key={notif.id}
                 onClick={() => onMarkAsRead(notif.id)}
                 className={`p-4 rounded-xl transition-colors cursor-pointer flex gap-3 ${notif.read ? 'bg-white' : 'bg-blue-50/50'}`}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  notif.type === 'weather' ? 'bg-blue-100' : notif.type === 'news' ? 'bg-orange-100' : 'bg-gray-100'
-                }`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${notif.type === 'weather' ? 'bg-blue-100' : notif.type === 'news' ? 'bg-orange-100' : 'bg-gray-100'
+                  }`}>
                   {getIcon(notif.type)}
                 </div>
                 <div className="flex-1">
