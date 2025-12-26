@@ -11,7 +11,7 @@ import NotificationCenter from './components/NotificationCenter';
 import { AppTab, AppNotification } from './types';
 import DailyBriefingModal from './components/DailyBriefingModal';
 import { getDailyBriefing, getRealtimeAlerts } from './services/geminiService';
-import { Sun, Anchor, Newspaper, MessageCircle, Bell, Loader2, CheckCircle2 } from 'lucide-react';
+import { Sun, Anchor, Newspaper, MessageCircle, Bell, Loader2, CheckCircle2, Share2 } from 'lucide-react';
 import InstallPWA from './components/InstallPWA';
 
 const App: React.FC = () => {
@@ -48,6 +48,23 @@ const App: React.FC = () => {
       } catch (e) {
         console.error("Notification trigger failed", e);
       }
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: '군산 라이프',
+          text: '군산 시민을 위한 필수 앱! 날씨, 물때, 맛집까지 한번에 확인하세요.',
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("주소가 복사되었습니다! 친구에게 붙여넣기로 공유해보세요.");
+      }
+    } catch (error) {
+      console.log('Share canceled');
     }
   };
 
@@ -103,11 +120,18 @@ const App: React.FC = () => {
 
             {/* Landing Page Slogan / Hero */}
             <div className="mt-4 mb-2 animate-[fadeIn_0.5s_ease-out]">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center justify-between mb-1">
                 <h2 className="text-3xl font-extrabold text-gray-900 leading-tight">
                   하루에 한번보는<br />
                   <span className="text-blue-600">군산정보</span>
                 </h2>
+                <button
+                  onClick={handleShare}
+                  className="bg-blue-50 text-blue-600 p-3 rounded-full hover:bg-blue-100 transition-colors active:scale-95 shadow-sm border border-blue-100"
+                  aria-label="친구에게 공유하기"
+                >
+                  <Share2 size={20} />
+                </button>
               </div>
               <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 mt-2">
                 {isUpdating ? (
