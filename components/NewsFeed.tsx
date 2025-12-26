@@ -59,9 +59,14 @@ const NewsFeed: React.FC = () => {
           }
         }
 
-        // 3. Check for <img> in description
-        if (!imageUrl && description) {
-          const imgMatch = description.match(/<img[^>]+src="([^">]+)"/);
+        // 3. Check for <img> in description or content:encoded
+        if (!imageUrl) {
+          // Check content:encoded if description doesn't have it
+          const contentEncoded = item.getElementsByTagNameNS('http://purl.org/rss/1.0/modules/content/', 'encoded')[0]?.textContent;
+          const targetHtml = (description + (contentEncoded || ''));
+
+          // Regex to capture src with single or double quotes
+          const imgMatch = targetHtml.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
           if (imgMatch) {
             imageUrl = imgMatch[1];
           }
@@ -352,6 +357,32 @@ const NewsFeed: React.FC = () => {
                   ))}
                 </div>
               )}
+            </div>
+          );
+        }
+
+        // Special Layout for '전북언론' or '중앙언론' (Preparing)
+        if (category.name === '전북언론' || category.name === '중앙언론') {
+          return (
+            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                <div className="relative">
+                  <Info size={40} className="text-blue-400" />
+                  <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                    <Clock size={20} className="text-blue-600" />
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                서비스 준비중입니다
+              </h3>
+              <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto mb-8">
+                <span className="font-bold text-gray-700">{category.name}</span> 채널은 현재 준비 단계입니다.<br />
+                더 알찬 소식으로 곧 찾아뵙겠습니다.
+              </p>
+              <div className="px-4 py-2 bg-gray-100 rounded-lg text-xs font-medium text-gray-500">
+                문의: gunsanlife@email.com
+              </div>
             </div>
           );
         }
