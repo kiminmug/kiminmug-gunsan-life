@@ -15,6 +15,11 @@ export default defineConfig(({ mode }) => {
           target: 'http://www.todaygunsan.co.kr/rss/S1N1.xml',
           changeOrigin: true,
           rewrite: (path) => '',
+        },
+        '/.netlify/functions': {
+          target: 'https://gunsannews.net',
+          changeOrigin: true,
+          secure: false,
         }
       },
     },
