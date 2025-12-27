@@ -30,9 +30,9 @@ export const generateDailyBriefing = async (): Promise<string> => {
         // 1. Collect Data in Parallel
         const [exchangeRes, krRes, jbRes, gsRes, finRes] = await Promise.all([
             axios.get('https://api.exchangerate-api.com/v4/latest/USD').catch(() => ({ data: { rates: { KRW: 0 } } })),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko')}`),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=전북&hl=ko&gl=KR&ceid=KR:ko')}`),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`),
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" })),
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=전북&hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" })),
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" })),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://finance.naver.com/')}`).catch(e => { console.warn('Finance fetch failed', e); return { data: "" }; }) // Get Financial Page Text
         ]);
 
