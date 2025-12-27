@@ -41,20 +41,22 @@ export const generateDailyBriefing = async (): Promise<string> => {
         // Clean up financial HTML to just text to save tokens
         const finText = typeof finRes.data === 'string' ? finRes.data.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').slice(0, 10000) : "";
 
-        // Reduce news items for speed (10->5, 5->3)
-        const krNews = parseRSS(krRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
-        const jbNews = parseRSS(jbRes.data, 3).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
-        const gsNews = parseRSS(gsRes.data, 3).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
+        // Reduce news items (Restored to User Request: 10, 5, 5)
+        const krNews = parseRSS(krRes.data, 10).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
+        const jbNews = parseRSS(jbRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
+        const gsNews = parseRSS(gsRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
 
         const now = new Date();
         const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        // Compute Lunar Date accurately
+        const lunarDateStr = now.toLocaleDateString('ko-KR', { calendar: 'chinese', year: 'numeric', month: 'numeric', day: 'numeric' });
 
         // 3. Construct Prompt (Economics ADDED, Weather REMOVED)
         const prompt = `
     당신은 전문 뉴스 큐레이터입니다. 아래 데이터를 바탕으로 "오늘 주요 브리핑"을 작성해주세요.
     
     **데이터:**
-    - 날짜: ${dateStr}
+    - 날짜: ${dateStr} (음력: ${lunarDateStr})
     - 기본 환율(API): ${krwRate}원/달러
     - **네이버 증권 페이지 텍스트(참고용)**: ${finText}
     
@@ -69,7 +71,7 @@ export const generateDailyBriefing = async (): Promise<string> => {
     
     **작성 규칙 (필수):**
     1. **제목**: "## 📰 오늘 주요 브리핑" (H2 태그).
-    2. **1. 오늘의 기본 정보**: 날짜, 음력(오늘 기준 계산), 역사 속 오늘(12.27 사건 2개).
+    2. **1. 오늘의 기본 정보**: 날짜, 음력(제공된 데이터 사용), 역사 속 오늘(한국사 위주로 2개).
     3. **2. 주요 경제 지표** (출처: [네이버 증권](https://finance.naver.com/)):
        *제공된 텍스트에서 데이터를 찾으면 표시하고, 없으면 API 환율만 표시하거나 생략하세요. ("확인 불가"라는 멘트 작성 금지)*
        
