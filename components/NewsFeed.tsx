@@ -498,8 +498,8 @@ const NewsFeed: React.FC = () => {
           );
         }
 
-        // Special Layout for '전북언론' or '중앙언론' (Preparing)
-        if (category.name === '전북언론' || category.name === '중앙언론') {
+        // Special Layout for '전북' or '중앙' (Preparing)
+        if (category.name === '전북' || category.name === '중앙') {
           return (
             <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center justify-center p-8 text-center">
               <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
@@ -548,16 +548,16 @@ const NewsFeed: React.FC = () => {
       <div className="bg-white px-2 sticky top-0 z-30 shadow-sm border-b border-gray-100 flex overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveMainTab('LIVE')}
-          className={`flex-shrink-0 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === 'LIVE' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+          className={`flex-shrink-0 px-3 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === 'LIVE' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
         >
-          실시간 뉴스
+          실시간뉴스
         </button>
         {NEWS_CATEGORIES.map(cat => (
           <button
             key={cat.name}
             onClick={() => setActiveMainTab(cat.name)}
-            className={`flex-shrink-0 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === cat.name ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            className={`flex-shrink-0 px-3 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === cat.name ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
           >
             {cat.name}
