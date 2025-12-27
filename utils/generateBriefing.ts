@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { fetchKMAWeather } from '../services/weatherService';
+
 
 // Initialize Gemini
 const API_KEY = "AIzaSyBtY8qWfX1f2CIg6i8gg6zO-XbnQNZMNaQ"; // User provided key
@@ -28,22 +28,19 @@ const parseRSS = (xmlText: string, limit: number): { title: string, link: string
 export const generateDailyBriefing = async (): Promise<string> => {
     try {
         // 1. Collect Data in Parallel
-        const [weatherData, exchangeRes, krRes, jbRes, gsRes] = await Promise.all([
-            fetchKMAWeather(),
+        const [exchangeRes, krRes, jbRes, gsRes, finRes] = await Promise.all([
             axios.get('https://api.exchangerate-api.com/v4/latest/USD').catch(() => ({ data: { rates: { KRW: 0 } } })),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko')}`),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=전북&hl=ko&gl=KR&ceid=KR:ko')}`),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`)
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`),
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://finance.naver.com/')}`) // Get Financial Page Text
         ]);
 
         // 2. Process Data
         const krwRate = exchangeRes.data.rates.KRW;
-        const weatherText = weatherData.current ?
-            `오늘날씨: ${weatherData.current.condition}, 기온: ${weatherData.current.temp}도, 습도: ${weatherData.current.humidity}%` :
-            "날씨 정보 수신 실패";
 
-        const tomorrow = weatherData.forecast && weatherData.forecast.length > 0 ? weatherData.forecast[0] : null;
-        const tomText = tomorrow ? `내일날씨: ${tomorrow.condition}, 최고: ${tomorrow.high}, 최저: ${tomorrow.low}` : "";
+        // Clean up financial HTML to just text to save tokens
+        const finText = finRes.data.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').slice(0, 10000); // Simple strip tags and limit length
 
         const krNews = parseRSS(krRes.data, 10).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
         const jbNews = parseRSS(jbRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
@@ -53,16 +50,13 @@ export const generateDailyBriefing = async (): Promise<string> => {
         const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
         // 3. Construct Prompt with User requests
-        // - Title size: Use ## or ###
-        // - Economic summary: Explicitly ask for it
-        // - Spacing: Compact
         const prompt = `
     당신은 전문 뉴스 큐레이터입니다. 아래 데이터를 바탕으로 "오늘 주요 브리핑"을 작성해주세요.
     
     **데이터:**
     - 날짜: ${dateStr}
-    - 환율: ${krwRate}원/달러
-    - 날씨: ${weatherText}. ${tomText}
+    - 기본 환율(API): ${krwRate}원/달러
+    - **네이버 증권 페이지 텍스트(참고용)**: ${finText}
     
     [한국뉴스 데이터]
     ${krNews}
@@ -73,19 +67,24 @@ export const generateDailyBriefing = async (): Promise<string> => {
     [군산뉴스 데이터]
     ${gsNews}
     
-    **작성 규칙 (지키지 않으면 안됨):**
-    1. **제목**: "## 📰 오늘 주요 브리핑" (H2 태그 사용, 너무 크지 않게).
+    **작성 규칙 (필수):**
+    1. **제목**: "## 📰 오늘 주요 브리핑" (H2 태그).
     2. **1. 오늘의 기본 정보**: 날짜, 음력(오늘 기준 계산), 역사 속 오늘(12.27 사건 2개).
-    3. **2. 경제 지표 및 요약**:
-       - 환율 정보 표시.
-
-    4. **3. 군산 날씨**: 위 날씨 데이터 기반 요약.
-    5. **4. 뉴스 스크랩**: 카테고리별로 기사 제목을 나열하되, **반드시 원본 기사 링크를 걸어주세요**.
+    3. **2. 주요 경제 지표** (제공된 네이버 증권 텍스트에서 KOSPI, KOSDAQ, WTI, 금리 등을 찾아 아래 형식으로 작성. 못 찾으면 '확인 불가'로 표시):
+       - **환율**: 1,XXX.xx원 (전일 대비 변동폭) (API 값보다 텍스트 내 최신 값을 우선할 것)
+       - **KOSPI**: X,XXX.xx (전일 대비 변동폭)
+       - **KOSDAQ**: XXX.xx (전일 대비 변동폭)
+       - **금리 (국고채 3년)**: X.XX%
+       - **국제유가 (WTI)**: $XX.XX (배럴당)
+       
+    4. **3. 뉴스 스크랩**: 카테고리별로 제목 나열. **반드시 원본 기사 링크 포함**.
        - 형식: "- [기사 제목](기사 원본 링크)"
        - ### 대한민국 주요 뉴스
        - ### 전북 주요 뉴스
        - ### 군산 주요 뉴스
-    6. **스타일**:
+    5. **스타일**:
+       - 섹션 간 구분선(---) 사용.
+       - **날씨 정보는 제외할 것.**
        - 불필요한 빈 줄을 줄여서 좀 더 컴팩트하게 작성할 것 (경제지표와 뉴스 사이 간격 너무 넓지 않게).
        - 중요 키워드는 **볼드** 처리.
        - 각 섹션 사이에는 구분선(---) 하나만 넣을 것.
