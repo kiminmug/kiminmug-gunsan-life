@@ -4,9 +4,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
 // Initialize Gemini
-const API_KEY = "AIzaSyBtY8qWfX1f2CIg6i8gg6zO-XbnQNZMNaQ"; // User provided key
+const API_KEY = "AIzaSyBSQJ9eLmrL3wG4kFR8t4aFVUztwiNiPWM"; // User provided key
 const genAI = new GoogleGenerativeAI(API_KEY);
-
 
 
 // Helper to parse RSS XML
@@ -82,6 +81,7 @@ export const generateDailyBriefing = async (): Promise<string> => {
 
         // 4. Call Gemini with Fallback Models
         const modelsToTry = [
+            "gemini-1.5-flash",
             "gemini-2.0-flash",
             "gemini-2.0-flash-exp",
             "gemini-flash-latest",
