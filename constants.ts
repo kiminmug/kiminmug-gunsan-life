@@ -40,6 +40,11 @@ export const NEWS_CATEGORIES = [
     name: '중앙언론',
     url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?1322704382423',
     image: '/assets/central_news.png'
+  },
+  {
+    name: '영상뉴스',
+    image: '/assets/video_news_icon.png', // Placeholder, handled in logic
+    isSpecial: true // Flag for custom handling
   }
 ];
 

@@ -189,7 +189,7 @@ const NewsFeed: React.FC = () => {
     window.open(url, '_blank');
   };
 
-  const displayItems = activePlatform === 'KCN' ? VIDEO_NEWS_DATA : newsItems;
+  const displayItems = newsItems;
 
   const renderContent = () => {
     switch (activeMainTab) {
@@ -199,14 +199,14 @@ const NewsFeed: React.FC = () => {
             {/* Sub-tabs for RSS & Refresh */}
             <div className="sticky top-14 z-20 bg-white px-2 border-b border-gray-100 flex items-center justify-between shadow-sm">
               <div className="flex overflow-x-auto no-scrollbar flex-1">
-                {(['BRIEFING', 'ALL', 'TodayGunsan', 'KCN'] as const).map((p) => (
+                {(['BRIEFING', 'ALL', 'TodayGunsan'] as const).map((p) => (
                   <button
                     key={p}
                     onClick={() => { setActivePlatform(p); }}
                     className={`flex-shrink-0 px-4 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activePlatform === p ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'
                       }`}
                   >
-                    {p === 'BRIEFING' ? '오늘 주요 브리핑' : p === 'ALL' ? '전체' : p === 'TodayGunsan' ? '투데이군산' : '영상뉴스'}
+                    {p === 'BRIEFING' ? '오늘 주요 브리핑' : p === 'ALL' ? '전체' : '투데이군산'}
                   </button>
                 ))}
               </div>
@@ -418,6 +418,82 @@ const NewsFeed: React.FC = () => {
                   ))}
                 </div>
               )}
+            </div>
+          );
+        }
+
+
+        // Special Layout for '영상뉴스'
+        if (category.name === '영상뉴스') {
+          return (
+            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-gray-50">
+              {/* Special Banner for Video News */}
+              <div className="p-4 bg-red-50/50 sticky top-14 z-10">
+                <div
+                  onClick={() => handleOpenExternal(KCN_YOUTUBE_URL)}
+                  className="bg-white rounded-2xl overflow-hidden shadow-md border border-red-100 cursor-pointer group active:scale-[0.98] transition-all"
+                >
+                  <div className="aspect-video bg-gray-900 relative">
+                    <img
+                      src="https://img.youtube.com/vi/LXb3EKWsInQ/maxresdefault.jpg"
+                      className="w-full h-full object-cover opacity-80"
+                      alt="KCN 뉴스"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                        <Youtube size={32} className="text-white" fill="currentColor" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold">OFFICIAL</span>
+                      <h4 className="font-bold text-gray-900">KCN 금강방송 공식 채널</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                      재생 오류를 방지하기 위해 공식 채널로 직접 연결해드립니다. 최신 군산 뉴스를 가장 빠르게 확인하세요.
+                    </p>
+                    <div className="flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-red-700 transition-colors">
+                      공식 유튜브에서 뉴스 보기 <ChevronRight size={16} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="divide-y divide-gray-100">
+                {VIDEO_NEWS_DATA.map((news) => (
+                  <div
+                    key={news.id}
+                    onClick={() => handleOpenExternal(news.originalUrl || KCN_YOUTUBE_URL)}
+                    className="p-4 active:bg-gray-50 transition-colors cursor-pointer group bg-white"
+                  >
+                    <div className="flex justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="text-[16px] font-bold text-gray-900 leading-snug mb-2 group-hover:text-blue-700 transition-colors">
+                          {news.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+                          {news.summary}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span className="bg-red-50 text-red-600 font-bold px-1.5 py-0.5 rounded">
+                            {news.source}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar size={10} /> {news.date}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative border border-gray-100">
+                        <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                          <PlayCircle size={24} className="text-white/80" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           );
         }
