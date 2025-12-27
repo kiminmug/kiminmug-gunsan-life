@@ -90,7 +90,8 @@ export const generateDailyBriefing = async (): Promise<string> => {
             "gemini-1.5-flash-001",
             "gemini-1.5-pro",
             "gemini-pro",
-            "gemini-1.0-pro"
+            "gemini-1.0-pro",
+            "gemini-2.0-flash-exp"
         ];
 
         let lastError = null;
@@ -104,7 +105,6 @@ export const generateDailyBriefing = async (): Promise<string> => {
             } catch (e: any) {
                 console.warn(`Model ${modelName} failed:`, e.message);
                 lastError = e;
-                // Continue to next model
             }
         }
 
@@ -112,13 +112,25 @@ export const generateDailyBriefing = async (): Promise<string> => {
 
     } catch (e: any) {
         console.error("Briefing Generation Error", e);
+
+        // Debug: Try to list models
+        let debugInfo = "";
+        try {
+            const listRes = await axios.get(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY.trim()}`);
+            const availableModels = listRes.data.models ? listRes.data.models.map((m: any) => m.name).join(", ") : "None";
+            debugInfo = `\n\n**사용 가능한 모델 리스트**: ${availableModels}`;
+        } catch (listErr: any) {
+            debugInfo = `\n\n**모델 리스트 조회 실패**: ${listErr.message}`;
+        }
+
         return `
 ## ⚠️ 브리핑 생성 실패
 
-죄송합니다. 오류가 발생했습니다.
-잠시 후 다시 시도해주세요.
+죄송합니다. 서비스 연결에 문제가 있습니다.
+아래 모델 리스트를 확인 후 개발자에게 알려주세요.
 
 **오류 내용**: ${e.message || "알 수 없는 오류"}
+${debugInfo}
     `;
     }
 };
