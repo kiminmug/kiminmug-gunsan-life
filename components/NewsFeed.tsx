@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NEWS_CATEGORIES, FALLBACK_NEWS_DATA, VIDEO_NEWS_DATA, KCN_YOUTUBE_URL, TODAY_GUNSAN_RSS_URL } from '../constants';
-import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft, AlertCircle, Info, FileText } from 'lucide-react';
+import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, AlertCircle, Info, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { NewsItem } from '../types';
-import DailyBriefingModal from './DailyBriefingModal';
 import { generateDailyBriefing } from '../utils/generateBriefing';
 
 const DailyBriefingRenderer: React.FC<{ content: string }> = ({ content }) => {
@@ -15,7 +14,6 @@ const NewsFeed: React.FC = () => {
   const [activeMainTab, setActiveMainTab] = useState<string>('LIVE');
 
   // Briefing State
-  const [isBriefingOpen, setIsBriefingOpen] = useState(false);
   const [briefingContent, setBriefingContent] = useState('');
 
   // Existing RSS/Sub-tab state
@@ -163,14 +161,14 @@ const NewsFeed: React.FC = () => {
   };
 
   const handleOpenBriefing = async () => {
-    setIsBriefingOpen(true);
-    setBriefingContent('Wait... 오늘의 뉴스와 데이터를 수집하고 있습니다.\n\n잠시만 기다려주세요...');
-
-    try {
-      const content = await generateDailyBriefing();
-      setBriefingContent(content);
-    } catch (e) {
-      setBriefingContent('### 오류 발생\n데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+    if (!briefingContent || briefingContent === 'Wait') {
+      setBriefingContent('Wait... 오늘의 뉴스와 데이터를 수집하고 있습니다.\n\n잠시만 기다려주세요...');
+      try {
+        const content = await generateDailyBriefing();
+        setBriefingContent(content);
+      } catch (e) {
+        setBriefingContent('### 오류 발생\n데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+      }
     }
   };
 
@@ -213,7 +211,7 @@ const NewsFeed: React.FC = () => {
                 ))}
               </div>
 
-              {/* Refresh Button - Hidden on Briefing tab to avoid confusion or specific refresh for Briefing */}
+              {/* Refresh Button */}
               {activePlatform !== 'BRIEFING' && (
                 <div className="pr-2">
                   <button
@@ -256,117 +254,116 @@ const NewsFeed: React.FC = () => {
                 </div>
               )}
 
-              <div className="divide-y divide-gray-100 min-h-[50vh]">
-                {/* Special Banner for Video News Tab */}
-                {activePlatform === 'KCN' && (
-                  <div className="p-4 bg-red-50/50">
-                    <div
-                      onClick={() => handleOpenExternal(KCN_YOUTUBE_URL)}
-                      className="bg-white rounded-2xl overflow-hidden shadow-md border border-red-100 cursor-pointer group active:scale-[0.98] transition-all"
-                    >
-                      <div className="aspect-video bg-gray-900 relative">
-                        <img
-                          src="https://img.youtube.com/vi/LXb3EKWsInQ/maxresdefault.jpg"
-                          className="w-full h-full object-cover opacity-80"
-                          alt="KCN 뉴스"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                            <Youtube size={32} className="text-white" fill="currentColor" />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-5">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold">OFFICIAL</span>
-                          <h4 className="font-bold text-gray-900">KCN 금강방송 공식 채널</h4>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                          재생 오류를 방지하기 위해 공식 채널로 직접 연결해드립니다. 최신 군산 뉴스를 가장 빠르게 확인하세요.
-                        </p>
-                        <div className="flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-red-700 transition-colors">
-                          공식 유튜브에서 뉴스 보기 <ChevronRight size={16} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* News List */}
-                {displayItems.map((news) => (
+              {/* Special Banner for Video News Tab */}
+              {activePlatform === 'KCN' && (
+                <div className="p-4 bg-red-50/50">
                   <div
-                    key={news.id}
-                    onClick={() => handleOpenExternal(news.originalUrl || KCN_YOUTUBE_URL)}
-                    className="p-4 active:bg-gray-50 transition-colors cursor-pointer group"
+                    onClick={() => handleOpenExternal(KCN_YOUTUBE_URL)}
+                    className="bg-white rounded-2xl overflow-hidden shadow-md border border-red-100 cursor-pointer group active:scale-[0.98] transition-all"
                   >
-                    <div className="flex justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="text-[16px] font-bold text-gray-900 leading-snug mb-2 group-hover:text-blue-700 transition-colors">
-                          {news.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
-                          {news.summary}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span className={`font-bold px-1.5 py-0.5 rounded ${activePlatform === 'KCN' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
-                            }`}>
-                            {news.source}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar size={10} /> {news.date}
-                          </span>
+                    <div className="aspect-video bg-gray-900 relative">
+                      <img
+                        src="https://img.youtube.com/vi/LXb3EKWsInQ/maxresdefault.jpg"
+                        className="w-full h-full object-cover opacity-80"
+                        alt="KCN 뉴스"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                          <Youtube size={32} className="text-white" fill="currentColor" />
                         </div>
                       </div>
-
-                      {/* Image Logic */}
-                      {(news.imageUrl || activePlatform === 'KCN') && (
-                        <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative border border-gray-100">
-                          {news.imageUrl ? (
-                            <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                          ) : (activePlatform === 'KCN' &&
-                            <>
-                              <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-                                <PlayCircle size={24} className="text-white/80" />
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      )}
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold">OFFICIAL</span>
+                        <h4 className="font-bold text-gray-900">KCN 금강방송 공식 채널</h4>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                        재생 오류를 방지하기 위해 공식 채널로 직접 연결해드립니다. 최신 군산 뉴스를 가장 빠르게 확인하세요.
+                      </p>
+                      <div className="flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-red-700 transition-colors">
+                        공식 유튜브에서 뉴스 보기 <ChevronRight size={16} />
+                      </div>
                     </div>
                   </div>
-                ))}
+                </div>
+              )}
 
-                {loading && activePlatform !== 'KCN' && newsItems.length === 0 && (
-                  <div className="py-20 text-center text-gray-400 flex flex-col items-center">
-                    <Loader2 size={32} className="animate-spin mb-2 text-blue-500" />
-                    <p className="text-sm">뉴스를 불러오는 중...</p>
-                  </div>
-                )}
+              {/* News List */}
+              {activePlatform !== 'BRIEFING' && displayItems.map((news) => (
+                <div
+                  key={news.id}
+                  onClick={() => handleOpenExternal(news.originalUrl || KCN_YOUTUBE_URL)}
+                  className="p-4 active:bg-gray-50 transition-colors cursor-pointer group"
+                >
+                  <div className="flex justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-[16px] font-bold text-gray-900 leading-snug mb-2 group-hover:text-blue-700 transition-colors">
+                        {news.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+                        {news.summary}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <span className={`font-bold px-1.5 py-0.5 rounded ${activePlatform === 'KCN' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
+                          }`}>
+                          {news.source}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar size={10} /> {news.date}
+                        </span>
+                      </div>
+                    </div>
 
-                {!loading && activePlatform !== 'KCN' && newsItems.length === 0 && (
-                  <div className="py-20 text-center text-gray-400 flex flex-col items-center animate-[fadeIn_0.5s]">
-                    <RefreshCw size={32} className="mb-2 text-gray-300" />
-                    <p className="text-sm font-bold mb-1">뉴스를 불러올 수 없습니다.</p>
-                    <p className="text-xs text-red-400 mb-4">{errorMsg || "연결 상태를 확인해주세요."}</p>
-                    <button
-                      onClick={fetchRSS}
-                      className="bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors"
-                    >
-                      다시 시도
-                    </button>
+                    {/* Image Logic */}
+                    {(news.imageUrl || activePlatform === 'KCN') && (
+                      <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative border border-gray-100">
+                        {news.imageUrl ? (
+                          <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                        ) : (activePlatform === 'KCN' &&
+                          <>
+                            <img src={news.imageUrl} className="w-full h-full object-cover" alt="썸네일" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                              <PlayCircle size={24} className="text-white/80" />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
+
+              {loading && activePlatform !== 'KCN' && activePlatform !== 'BRIEFING' && newsItems.length === 0 && (
+                <div className="py-20 text-center text-gray-400 flex flex-col items-center">
+                  <Loader2 size={32} className="animate-spin mb-2 text-blue-500" />
+                  <p className="text-sm">뉴스를 불러오는 중...</p>
+                </div>
+              )}
+
+              {!loading && activePlatform !== 'KCN' && activePlatform !== 'BRIEFING' && newsItems.length === 0 && (
+                <div className="py-20 text-center text-gray-400 flex flex-col items-center animate-[fadeIn_0.5s]">
+                  <RefreshCw size={32} className="mb-2 text-gray-300" />
+                  <p className="text-sm font-bold mb-1">뉴스를 불러올 수 없습니다.</p>
+                  <p className="text-xs text-red-400 mb-4">{errorMsg || "연결 상태를 확인해주세요."}</p>
+                  <button
+                    onClick={fetchRSS}
+                    className="bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors"
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              )}
             </div>
-            );
+          </div>
+        );
 
-            default: // Press Categories
+      default:
         const category = NEWS_CATEGORIES.find(c => c.name === activeMainTab);
-            if (!category) return null;
+        if (!category) return null;
 
-            // Special Layout for '군산언론'
-            if (category.name === '군산언론') {
+        // Special Layout for '군산언론'
+        if (category.name === '군산언론') {
           return (
             <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white p-4">
 
@@ -422,11 +419,11 @@ const NewsFeed: React.FC = () => {
                 </div>
               )}
             </div>
-            );
+          );
         }
 
-            // Special Layout for '전북언론' or '중앙언론' (Preparing)
-            if (category.name === '전북언론' || category.name === '중앙언론') {
+        // Special Layout for '전북언론' or '중앙언론' (Preparing)
+        if (category.name === '전북언론' || category.name === '중앙언론') {
           return (
             <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center justify-center p-8 text-center">
               <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
@@ -448,61 +445,56 @@ const NewsFeed: React.FC = () => {
                 문의: gunsanlife@email.com
               </div>
             </div>
-            );
+          );
         }
 
-            // Default Layout for other categories (Image only)
-            return (
-            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center">
-              <div
-                onClick={() => category.url && handleOpenExternal(category.url)}
-                className="w-full cursor-pointer hover:opacity-95 transition-opacity"
-              >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-auto object-contain"
-                />
-              </div>
+        // Default Layout for other categories (Image only)
+        return (
+          <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center">
+            <div
+              onClick={() => category.url && handleOpenExternal(category.url)}
+              className="w-full cursor-pointer hover:opacity-95 transition-opacity"
+            >
+              <img
+                src={category.image}
+                alt={category.name}
+                className="w-full h-auto object-contain"
+              />
             </div>
-            );
+          </div>
+        );
     }
   };
 
-            return (
-            <div className="pb-20 bg-white min-h-screen flex flex-col">
-              {/* Top Navigation Tabs */}
-              <div className="bg-white px-2 sticky top-0 z-30 shadow-sm border-b border-gray-100 flex overflow-x-auto no-scrollbar">
-                <button
-                  onClick={() => setActiveMainTab('LIVE')}
-                  className={`flex-shrink-0 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === 'LIVE' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                >
-                  실시간 뉴스
-                </button>
-                {NEWS_CATEGORIES.map(cat => (
-                  <button
-                    key={cat.name}
-                    onClick={() => setActiveMainTab(cat.name)}
-                    className={`flex-shrink-0 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === cat.name ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
+  return (
+    <div className="pb-20 bg-white min-h-screen flex flex-col">
+      {/* Top Navigation Tabs */}
+      <div className="bg-white px-2 sticky top-0 z-30 shadow-sm border-b border-gray-100 flex overflow-x-auto no-scrollbar">
+        <button
+          onClick={() => setActiveMainTab('LIVE')}
+          className={`flex-shrink-0 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === 'LIVE' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+        >
+          실시간 뉴스
+        </button>
+        {NEWS_CATEGORIES.map(cat => (
+          <button
+            key={cat.name}
+            onClick={() => setActiveMainTab(cat.name)}
+            className={`flex-shrink-0 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === cat.name ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+          >
+            {cat.name}
+          </button>
+        ))}
+      </div>
 
-              {/* Main Content Area */}
-              <div className="flex-1 bg-gray-50">
-                {renderContent()}
-              </div>
-              <DailyBriefingModal
-                isOpen={isBriefingOpen}
-                onClose={() => setIsBriefingOpen(false)}
-                content={briefingContent}
-              />
-            </div>
-            );
+      {/* Main Content Area */}
+      <div className="flex-1 bg-gray-50">
+        {renderContent()}
+      </div>
+    </div>
+  );
 };
 
-            export default NewsFeed;
+export default NewsFeed;
