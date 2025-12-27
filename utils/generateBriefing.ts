@@ -45,9 +45,9 @@ export const generateDailyBriefing = async (): Promise<string> => {
         const tomorrow = weatherData.forecast && weatherData.forecast.length > 0 ? weatherData.forecast[0] : null;
         const tomText = tomorrow ? `내일날씨: ${tomorrow.condition}, 최고: ${tomorrow.high}, 최저: ${tomorrow.low}` : "";
 
-        const krNews = parseRSS(krRes.data, 10).map(n => n.title).join(", ");
-        const jbNews = parseRSS(jbRes.data, 5).map(n => n.title).join(", ");
-        const gsNews = parseRSS(gsRes.data, 5).map(n => n.title).join(", ");
+        const krNews = parseRSS(krRes.data, 10).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
+        const jbNews = parseRSS(jbRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
+        const gsNews = parseRSS(gsRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
 
         const now = new Date();
         const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
@@ -63,9 +63,15 @@ export const generateDailyBriefing = async (): Promise<string> => {
     - 날짜: ${dateStr}
     - 환율: ${krwRate}원/달러
     - 날씨: ${weatherText}. ${tomText}
-    - 한국뉴스: ${krNews}
-    - 전북뉴스: ${jbNews}
-    - 군산뉴스: ${gsNews}
+    
+    [한국뉴스 데이터]
+    ${krNews}
+    
+    [전북뉴스 데이터]
+    ${jbNews}
+    
+    [군산뉴스 데이터]
+    ${gsNews}
     
     **작성 규칙 (지키지 않으면 안됨):**
     1. **제목**: "## 📰 오늘 주요 브리핑" (H2 태그 사용, 너무 크지 않게).
@@ -74,7 +80,8 @@ export const generateDailyBriefing = async (): Promise<string> => {
        - 환율 정보 표시.
 
     4. **3. 군산 날씨**: 위 날씨 데이터 기반 요약.
-    5. **4. 뉴스 스크랩**: 카테고리별로 기사 제목만 나열 (각 5-10개).
+    5. **4. 뉴스 스크랩**: 카테고리별로 기사 제목을 나열하되, **반드시 원본 기사 링크를 걸어주세요**.
+       - 형식: "- [기사 제목](기사 원본 링크)"
        - ### 대한민국 주요 뉴스
        - ### 전북 주요 뉴스
        - ### 군산 주요 뉴스
