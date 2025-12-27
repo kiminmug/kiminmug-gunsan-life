@@ -82,11 +82,11 @@ export const generateDailyBriefing = async (): Promise<string> => {
 
         // 4. Call Gemini with Fallback Models
         const modelsToTry = [
+            "gemini-1.5-flash",
             "gemini-2.0-flash",
             "gemini-2.0-flash-exp",
             "gemini-flash-latest",
-            "gemini-pro-latest",
-            "gemini-1.5-flash"
+            "gemini-pro-latest"
         ];
 
         let lastError = null;
@@ -119,7 +119,7 @@ export const generateDailyBriefing = async (): Promise<string> => {
         }
 
         return `
-## ⚠️ 브리핑 생성 실패
+## ⚠️ 브리핑 생성 실패 (v0.0.6 - Stable)
 
 죄송합니다. 서비스 연결에 문제가 있습니다.
 아래 모델 리스트를 확인 후 개발자에게 알려주세요.
