@@ -6,7 +6,9 @@ import { fetchKMAWeather } from '../services/weatherService';
 // Initialize Gemini
 const API_KEY = "AIzaSyBtY8qWfX1f2CIg6i8gg6zO-XbnQNZMNaQ"; // User provided key
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const genAI = new GoogleGenerativeAI(API_KEY);
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Moved to function
+
 
 // Helper to parse RSS XML
 const parseRSS = (xmlText: string, limit: number): { title: string, link: string }[] => {
@@ -83,11 +85,31 @@ export const generateDailyBriefing = async (): Promise<string> => {
        - 각 섹션 사이에는 구분선(---) 하나만 넣을 것.
     `;
 
-        // 4. Call Gemini
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        return text;
+        // 4. Call Gemini with Fallback Models
+        const modelsToTry = [
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-001",
+            "gemini-1.5-pro",
+            "gemini-pro",
+            "gemini-1.0-pro"
+        ];
+
+        let lastError = null;
+        for (const modelName of modelsToTry) {
+            try {
+                console.log(`Trying model: ${modelName}`);
+                const currentModel = genAI.getGenerativeModel({ model: modelName });
+                const result = await currentModel.generateContent(prompt);
+                const response = await result.response;
+                return response.text();
+            } catch (e: any) {
+                console.warn(`Model ${modelName} failed:`, e.message);
+                lastError = e;
+                // Continue to next model
+            }
+        }
+
+        throw lastError || new Error("All models failed");
 
     } catch (e: any) {
         console.error("Briefing Generation Error", e);
