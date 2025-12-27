@@ -6,11 +6,18 @@ export interface SubLink {
   logo?: string;
 }
 
+export interface LinkGroup {
+  title: string;
+  links: SubLink[];
+}
+
 export interface NewsCategory {
   name: string;
   url?: string;
   image: string;
   subLinks?: SubLink[];
+  groups?: LinkGroup[]; // Support for categorized link groups
+  isSpecial?: boolean; // For custom layout handling
 }
 
 export interface NewsItem {

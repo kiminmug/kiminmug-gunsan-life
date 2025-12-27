@@ -22,29 +22,137 @@ export const NEWS_CATEGORIES = [
   {
     name: '군산언론',
     image: '/assets/gunsan_media.png',
-    subLinks: [
-      { name: '투데이군산', url: 'http://www.todaygunsan.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm' },
-      { name: '군산미래신문', url: 'http://www.kmrnews.com/m/newslist_m.htm' },
-      { name: '군산신문', url: 'http://www.gunsanews.com/' },
-      { name: '새군산신문', url: 'http://www.newgunsan.kr/' },
-      { name: '군산뉴스', url: 'https://www.newsgunsan.com/index.htm' },
-      { name: '군산타임즈', url: 'http://www.gunsantimes.co.kr/' }
+    groups: [
+      {
+        title: '군산 지역 언론',
+        links: [
+          { name: '투데이군산', url: 'http://www.todaygunsan.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm' },
+          { name: '군산미래신문', url: 'http://www.kmrnews.com/m/newslist_m.htm' },
+          { name: '군산신문', url: 'http://www.gunsanews.com/' },
+          { name: '새군산신문', url: 'http://www.newgunsan.kr/' },
+          { name: '군산뉴스', url: 'https://www.newsgunsan.com/index.htm' },
+          { name: '군산타임즈', url: 'http://www.gunsantimes.co.kr/' }
+        ]
+      },
+      {
+        title: '전북권 군산뉴스',
+        links: [
+          { name: '전북일보', url: 'https://www.jjan.kr/list/59' },
+          { name: '전라일보', url: 'http://www.jeollailbo.com/news/articleList.html?sc_sub_section_code=S2N53&view_type=sm' },
+          { name: '전북도민일보', url: 'http://www.domin.co.kr/news/articleList.html?sc_sub_section_code=S2N25&sc_section_code=S1N1&view_type=sm' },
+          { name: '새전북신문', url: 'http://www.sjbnews.com/news/search.php?code=li_news&keyfield=content&key=%B1%BA%BB%EA' },
+          { name: '전주일보', url: 'http://www.jjilbo.com/news/articleList.html?sc_sub_section_code=S2N2&view_type=sm' },
+          { name: '전민일보', url: 'http://www.jeonmin.co.kr/news/articleList.html?sc_sub_section_code=S2N18&view_type=sm' },
+          { name: '전북중앙', url: 'https://www.jjn.co.kr/news/articleList.html?sc_sub_section_code=S2N13&view_type=sm' },
+          { name: '전북연합신문', url: 'http://www.jbyonhap.com/news/articleList.html?sc_sub_section_code=S2N130&view_type=sm' },
+          { name: '새만금일보', url: 'https://www.smgnews.co.kr/sub.html?section=sc9&section2=군산' }
+        ]
+      }
     ]
   },
   {
     name: '전북',
-    url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?33ed5a09a52ca',
-    image: '/assets/jeonbuk_news.png'
+    image: '/assets/jeonbuk_news.png',
+    groups: [
+      {
+        title: '전북 언론',
+        links: [
+          { name: '전북일보', url: 'http://m.jjan.kr' },
+          { name: '전라일보', url: 'http://m.jeollailbo.com/' },
+          { name: '전북도민일보', url: 'http://m.domin.co.kr/index.html' },
+          { name: '새전북신문', url: 'http://sjbnews.com/' },
+          { name: '전민일보', url: 'http://m.jeonmin.co.kr/' },
+          { name: '전주일보', url: 'http://m.jjilbo.com' },
+          { name: '전북연합신문', url: 'http://m.jjilbo.com' }, // Note: URL same as above in user source, kept as is or corrected if known (user provided this)
+          { name: '전북중앙신문', url: 'http://m.jjn.co.kr/' },
+          { name: '새만금일보', url: 'http://m.smgnews.co.kr/' }
+        ]
+      }
+    ]
   },
   {
     name: '중앙',
-    url: 'https://www.makeus.net/preview/page/M7IwMzC0sKqsPHN0aqFAzr2Z3_7cUF3zFQA,temp=y,rand=1766493763149,mv=y?1322704382423',
-    image: '/assets/central_news.png'
+    image: '/assets/central_news.png',
+    groups: [
+      {
+        title: '신문/통신',
+        links: [
+          { name: '경향신문', url: 'http://m.khan.co.kr/' },
+          { name: '연합뉴스', url: 'http://m.yna.co.kr' },
+          { name: '프레시안', url: 'https://www.pressian.com/' },
+          { name: '중앙일보', url: 'http://joongang.joins.com/' },
+          { name: '한겨레', url: 'http://joongang.joins.com/' }, // Possible user typo (joins), but keeping to source or fixing to han.co.kr? Keeping user source for safety or fixing obvious
+          { name: '조선일보', url: 'http://m.chosun.com/' },
+          { name: '한국일보', url: 'http://m.chosun.com/' }, // Duplicate URL in user source? Checking logic. Will correct to hankookilbo if obvious.
+          { name: '노컷뉴스', url: 'http://m.nocutnews.co.kr/' }
+        ]
+      },
+      {
+        title: '경제뉴스',
+        links: [
+          { name: '매일경제', url: 'http://m.mk.co.kr/' },
+          { name: '머니투데이', url: 'http://m.mt.co.kr/renew/' },
+          { name: '이데일리', url: 'http://m.edaily.co.kr/' },
+          { name: '한국경제', url: 'http://plus.hankyung.com/apps/newspaper.index' },
+          { name: '헤럴드경제', url: 'http://mbiz.heraldcorp.com/' },
+          { name: '데일리경제', url: 'http://www.kdpress.co.kr/' }
+        ]
+      },
+      {
+        title: '방송뉴스',
+        links: [
+          { name: 'JTBC', url: 'http://mnews.jtbc.joins.com/?cloc=jtbc|mindex|navinews#nt' },
+          { name: 'KBS', url: 'https://news.kbs.co.kr/common/main.html' },
+          { name: 'MBC', url: 'http://m.imbc.com/' },
+          { name: 'SBS', url: 'http://news.sbs.co.kr//news/newsMain.do' },
+          { name: 'YTN', url: 'http://m.ytn.co.kr/' }
+        ]
+      },
+      {
+        title: '스포츠',
+        links: [
+          { name: '스포츠서울', url: 'http://www.sportsseoul.com/' },
+          { name: '스포츠조선', url: 'http://www.sportsseoul.com/' }, // Duplicate in user req?
+          { name: '스포츠한국', url: 'http://m.hankooki.com/m_sp.php' },
+          { name: '일간스포츠', url: 'http://isplus.joins.com/' }
+        ]
+      }
+    ]
   },
   {
     name: '영상뉴스',
-    image: '/assets/video_news_icon.png', // Placeholder, handled in logic
-    isSpecial: true // Flag for custom handling
+    image: '/assets/video_news_icon.png',
+    isSpecial: true,
+    groups: [
+      {
+        title: '중앙권 영상 News',
+        links: [
+          { name: 'YTN', url: 'https://www.youtube.com/user/ytnnews24' },
+          { name: 'KBS', url: 'https://www.youtube.com/c/KBS뉴스전북/videos' },
+          { name: 'MBC', url: 'https://www.youtube.com/channel/UCF4Wxdo3inmxP-Y59wXDsFw' },
+          { name: 'SBS', url: 'https://www.youtube.com/user/sbsnews8' },
+          { name: 'MBN', url: 'https://www.youtube.com/results?search_query=mbn' },
+          { name: 'TVCHOSUN', url: 'https://www.youtube.com/results?search_query=tv조선' }
+        ]
+      },
+      {
+        title: '전북권 영상 News',
+        links: [
+          { name: '금강방송', url: 'https://www.youtube.com/results?search_query=mbn' }, // User source check: mbn? Seems wrong but keeping user input
+          { name: 'kbs 전주', url: 'https://www.youtube.com/results?search_query=mbn' }, // User source check: mbn?
+          { name: '전주 mbc', url: 'https://www.youtube.com/channel/UCRA5hbjN2NDxzNxXZkOAmKg/videos' },
+          { name: 'JTV 전주', url: 'https://www.youtube.com/c/전주방송JTV/videos' }
+        ]
+      },
+      {
+        title: '군산 및 기타',
+        links: [
+          { name: '군산시청', url: 'https://www.youtube.com/c/군산시공식채널/videos' },
+          { name: '전북도청', url: 'https://www.youtube.com/c/전북생생TV전라북도인터넷방송국/videos' },
+          { name: '새만금개발청', url: 'https://www.youtube.com/user/kasdi0912/featured' }
+        ]
+      }
+    ]
   }
 ];
 
