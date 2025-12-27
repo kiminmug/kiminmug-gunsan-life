@@ -33,14 +33,14 @@ export const generateDailyBriefing = async (): Promise<string> => {
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko')}`),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=전북&hl=ko&gl=KR&ceid=KR:ko')}`),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://finance.naver.com/')}`) // Get Financial Page Text
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://finance.naver.com/')}`).catch(e => { console.warn('Finance fetch failed', e); return { data: "" }; }) // Get Financial Page Text
         ]);
 
         // 2. Process Data
         const krwRate = exchangeRes.data.rates.KRW;
 
         // Clean up financial HTML to just text to save tokens
-        const finText = finRes.data.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').slice(0, 10000); // Simple strip tags and limit length
+        const finText = typeof finRes.data === 'string' ? finRes.data.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').slice(0, 10000) : "";
 
         const krNews = parseRSS(krRes.data, 10).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
         const jbNews = parseRSS(jbRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
@@ -92,12 +92,11 @@ export const generateDailyBriefing = async (): Promise<string> => {
 
         // 4. Call Gemini with Fallback Models
         const modelsToTry = [
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-001",
-            "gemini-1.5-pro",
-            "gemini-pro",
-            "gemini-1.0-pro",
-            "gemini-2.0-flash-exp"
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-exp",
+            "gemini-flash-latest",
+            "gemini-pro-latest",
+            "gemini-1.5-flash"
         ];
 
         let lastError = null;
