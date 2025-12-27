@@ -362,140 +362,105 @@ const NewsFeed: React.FC = () => {
         const category = NEWS_CATEGORIES.find(c => c.name === activeMainTab);
         if (!category) return null;
 
-        // Special Layout for '군산언론'
-        if (category.name === '군산언론') {
-          return (
-            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white p-4">
 
-              {/* 1. Designed Description Box (Premium UI) */}
-              <div className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-8 text-center shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <AlertCircle size={64} className="text-blue-600" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="bg-white p-2 rounded-full shadow-sm mb-3 border-2 border-blue-100">
-                    <Info size={24} className="text-blue-600" />
-                  </div>
-
-                  <p className="text-gray-800 leading-relaxed font-bold text-lg break-keep mb-2">
-                    각 언론사의 <span className="text-blue-600">군산 뉴스</span>를<br />
-                    빠르고 정확하게 전달합니다
-                  </p>
-
-                  <div className="w-12 h-[2px] bg-blue-100 mx-auto my-3"></div>
-
-                  <p className="text-slate-500 text-sm font-medium leading-snug">
-                    <span className="block mb-1">저작권 보호를 위해</span>
-                    언론사 홈페이지로 <span className="text-slate-700 font-bold">직접 연결</span>됩니다.
-                  </p>
-                </div>
-              </div>
-
-              {/* 2. Stylish Section Title */}
-              <div className="flex items-center justify-center gap-2 mb-5">
-                <div className="h-1 w-6 bg-blue-600 rounded-full"></div>
-                <h2 className="text-xl font-bold text-gray-900">군산 언론사 (링크)</h2>
-                <div className="h-1 w-6 bg-blue-600 rounded-full"></div>
-              </div>
 
         // Render Grouped Links (New Structure)
-              if (category.groups) {
+        if (category.groups) {
           return (
-              <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-gray-50 pb-8">
+            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-gray-50 pb-8">
 
 
 
-                {category.groups.map((group, groupIdx) => (
-                  <div key={groupIdx} className="mb-6 px-4">
-                    <div className="flex items-center gap-2 mb-3 mt-4">
-                      <div className="w-1 h-4 bg-blue-600 rounded-full"></div>
-                      <h3 className="font-bold text-gray-800 text-lg">{group.title}</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      {group.links.map((link, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleOpenExternal(link.url)}
-                          className="flex flex-col items-center justify-center py-3 bg-white border border-slate-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-sm transition-all active:scale-95 group"
-                        >
-                          <div className="flex items-center gap-2 px-2 text-center">
-                            <span className="font-bold text-gray-700 text-[15px] group-hover:text-blue-700 transition-colors line-clamp-1">
-                              {link.name}
-                            </span>
-                            <ExternalLink size={14} className="text-gray-300 group-hover:text-blue-500 flex-shrink-0" />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+              {category.groups.map((group, groupIdx) => (
+                <div key={groupIdx} className="mb-6 px-4">
+                  <div className="flex items-center gap-2 mb-3 mt-4">
+                    <div className="w-1 h-4 bg-blue-600 rounded-full"></div>
+                    <h3 className="font-bold text-gray-800 text-lg">{group.title}</h3>
                   </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {group.links.map((link, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleOpenExternal(link.url)}
+                        className="flex flex-col items-center justify-center py-3 bg-white border border-slate-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-sm transition-all active:scale-95 group"
+                      >
+                        <div className="flex items-center gap-2 px-2 text-center">
+                          <span className="font-bold text-gray-700 text-[15px] group-hover:text-blue-700 transition-colors line-clamp-1">
+                            {link.name}
+                          </span>
+                          <ExternalLink size={14} className="text-gray-300 group-hover:text-blue-500 flex-shrink-0" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        // Fallback for flat subLinks (Legacy support if ever needed, currently overwritten)
+        if (category.subLinks) {
+          return (
+            <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-gray-50 p-4">
+              <div className="grid grid-cols-2 gap-3">
+                {category.subLinks.map((link, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleOpenExternal(link.url)}
+                    className="flex flex-col items-center justify-center py-3 bg-white border border-slate-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-sm transition-all active:scale-95 group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-gray-700 text-[15px] group-hover:text-blue-700 transition-colors">
+                        {link.name}
+                      </span>
+                      <ExternalLink size={14} className="text-gray-300 group-hover:text-blue-500" />
+                    </div>
+                  </button>
                 ))}
               </div>
-              );
+            </div>
+          );
         }
 
-              // Fallback for flat subLinks (Legacy support if ever needed, currently overwritten)
-              if (category.subLinks) {
-          return (
-              <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-gray-50 p-4">
-                <div className="grid grid-cols-2 gap-3">
-                  {category.subLinks.map((link, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleOpenExternal(link.url)}
-                      className="flex flex-col items-center justify-center py-3 bg-white border border-slate-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-sm transition-all active:scale-95 group"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gray-700 text-[15px] group-hover:text-blue-700 transition-colors">
-                          {link.name}
-                        </span>
-                        <ExternalLink size={14} className="text-gray-300 group-hover:text-blue-500" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              );
-        }
-
-              // Default Layout (Should not be reached for these categories anymore)
-              return (
-              <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center">
-                <p className="mt-10 text-gray-400">링크 정보가 없습니다.</p>
-              </div>
-              );
+        // Default Layout (Should not be reached for these categories anymore)
+        return (
+          <div className="animate-[fadeIn_0.3s_ease-out] w-full min-h-[50vh] bg-white flex flex-col items-center">
+            <p className="mt-10 text-gray-400">링크 정보가 없습니다.</p>
+          </div>
+        );
     }
   };
 
-              return (
-              <div className="pb-20 bg-white min-h-screen flex flex-col">
-                {/* Top Navigation Tabs */}
-                <div className="bg-white px-2 sticky top-0 z-30 shadow-sm border-b border-gray-100 flex overflow-x-auto no-scrollbar">
-                  <button
-                    onClick={() => setActiveMainTab('LIVE')}
-                    className={`flex-shrink-0 px-3 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === 'LIVE' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }`}
-                  >
-                    실시간뉴스
-                  </button>
-                  {NEWS_CATEGORIES.map(cat => (
-                    <button
-                      key={cat.name}
-                      onClick={() => setActiveMainTab(cat.name)}
-                      className={`flex-shrink-0 px-3 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === cat.name ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-                        }`}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
-                </div>
+  return (
+    <div className="pb-20 bg-white min-h-screen flex flex-col">
+      {/* Top Navigation Tabs */}
+      <div className="bg-white px-2 sticky top-0 z-30 shadow-sm border-b border-gray-100 flex overflow-x-auto no-scrollbar">
+        <button
+          onClick={() => setActiveMainTab('LIVE')}
+          className={`flex-shrink-0 px-3 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === 'LIVE' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+        >
+          실시간뉴스
+        </button>
+        {NEWS_CATEGORIES.map(cat => (
+          <button
+            key={cat.name}
+            onClick={() => setActiveMainTab(cat.name)}
+            className={`flex-shrink-0 px-3 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeMainTab === cat.name ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+          >
+            {cat.name}
+          </button>
+        ))}
+      </div>
 
-                {/* Main Content Area */}
-                <div className="flex-1 bg-gray-50">
-                  {renderContent()}
-                </div>
-              </div>
-              );
+      {/* Main Content Area */}
+      <div className="flex-1 bg-gray-50">
+        {renderContent()}
+      </div>
+    </div>
+  );
 };
 
-              export default NewsFeed;
+export default NewsFeed;
