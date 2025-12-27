@@ -6,7 +6,7 @@ import { fetchKMAWeather } from '../services/weatherService';
 // Initialize Gemini
 const API_KEY = "AIzaSyBtY8qWfX1f2CIg6i8gg6zO-XbnQNZMNaQ"; // User provided key
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // Helper to parse RSS XML
 const parseRSS = (xmlText: string, limit: number): { title: string, link: string }[] => {
