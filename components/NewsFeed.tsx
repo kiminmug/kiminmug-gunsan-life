@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { NEWS_CATEGORIES, FALLBACK_NEWS_DATA, VIDEO_NEWS_DATA, KCN_YOUTUBE_URL, TODAY_GUNSAN_RSS_URL } from '../constants';
-import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft, AlertCircle, Info } from 'lucide-react';
+import { ExternalLink, RefreshCw, PlayCircle, Youtube, ChevronRight, Loader2, Calendar, Clock, ArrowLeft, AlertCircle, Info, FileText } from 'lucide-react';
 import { NewsItem } from '../types';
+import DailyBriefingModal from './DailyBriefingModal';
+import { generateDailyBriefing } from '../utils/generateBriefing';
 
 const NewsFeed: React.FC = () => {
   // Unified Tab State
   const [activeMainTab, setActiveMainTab] = useState<string>('LIVE');
+
+  // Briefing State
+  const [isBriefingOpen, setIsBriefingOpen] = useState(false);
+  const [briefingContent, setBriefingContent] = useState('');
 
   // Existing RSS/Sub-tab state
   const [activePlatform, setActivePlatform] = useState<'ALL' | 'TodayGunsan' | 'KCN'>('ALL');
@@ -150,6 +156,18 @@ const NewsFeed: React.FC = () => {
     }
   };
 
+  const handleOpenBriefing = async () => {
+    setIsBriefingOpen(true);
+    setBriefingContent('Wait... 오늘의 뉴스와 데이터를 수집하고 있습니다.\n\n잠시만 기다려주세요...');
+
+    try {
+      const content = await generateDailyBriefing();
+      setBriefingContent(content);
+    } catch (e) {
+      setBriefingContent('### 오류 발생\n데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  };
+
   useEffect(() => {
     if (activeMainTab === 'LIVE') {
       fetchRSS();
@@ -182,14 +200,24 @@ const NewsFeed: React.FC = () => {
                 ))}
               </div>
 
-              {/* Refresh Button */}
-              <button
-                onClick={fetchRSS}
-                disabled={loading}
-                className="px-3 py-3 text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1 active:scale-95"
-              >
-                <RefreshCw size={18} className={loading ? "animate-spin text-blue-500" : ""} />
-              </button>
+              {/* Refresh Button & Briefing Button */}
+              <div className="flex items-center gap-1 pr-2">
+                <button
+                  onClick={handleOpenBriefing}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors active:scale-95 border border-blue-100 shadow-sm"
+                >
+                  <FileText size={14} />
+                  브리핑
+                </button>
+
+                <button
+                  onClick={fetchRSS}
+                  disabled={loading}
+                  className="p-2 text-gray-400 hover:text-blue-600 transition-colors flex items-center justify-center active:scale-95"
+                >
+                  <RefreshCw size={18} className={loading ? "animate-spin text-blue-500" : ""} />
+                </button>
+              </div>
             </div>
 
             <div className="divide-y divide-gray-100 min-h-[50vh]">
@@ -432,6 +460,11 @@ const NewsFeed: React.FC = () => {
       <div className="flex-1 bg-gray-50">
         {renderContent()}
       </div>
+      <DailyBriefingModal
+        isOpen={isBriefingOpen}
+        onClose={() => setIsBriefingOpen(false)}
+        content={briefingContent}
+      />
     </div>
   );
 };
