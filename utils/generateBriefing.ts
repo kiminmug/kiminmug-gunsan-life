@@ -6,8 +6,7 @@ import { fetchKMAWeather } from '../services/weatherService';
 // Initialize Gemini
 const API_KEY = "AIzaSyBtY8qWfX1f2CIg6i8gg6zO-XbnQNZMNaQ"; // User provided key
 const genAI = new GoogleGenerativeAI(API_KEY);
-const genAI = new GoogleGenerativeAI(API_KEY);
-// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Moved to function
+
 
 
 // Helper to parse RSS XML
@@ -73,7 +72,7 @@ export const generateDailyBriefing = async (): Promise<string> => {
     2. **1. 오늘의 기본 정보**: 날짜, 음력(오늘 기준 계산), 역사 속 오늘(12.27 사건 2개).
     3. **2. 경제 지표 및 요약**:
        - 환율 정보 표시.
-       - **경제 요약**: 오늘 뉴스 헤드라인을 바탕으로 경제/사회 분위기를 1-2문장으로 요약해서 작성할 것. (필수).
+
     4. **3. 군산 날씨**: 위 날씨 데이터 기반 요약.
     5. **4. 뉴스 스크랩**: 카테고리별로 기사 제목만 나열 (각 5-10개).
        - ### 대한민국 주요 뉴스
