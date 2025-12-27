@@ -28,19 +28,15 @@ const parseRSS = (xmlText: string, limit: number): { title: string, link: string
 export const generateDailyBriefing = async (): Promise<string> => {
     try {
         // 1. Collect Data in Parallel
-        const [exchangeRes, krRes, jbRes, gsRes, finRes] = await Promise.all([
+        const [exchangeRes, krRes, jbRes, gsRes] = await Promise.all([
             axios.get('https://api.exchangerate-api.com/v4/latest/USD').catch(() => ({ data: { rates: { KRW: 0 } } })),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" })),
             axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=전북&hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" })),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" })),
-            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://finance.naver.com/')}`).catch(e => { console.warn('Finance fetch failed', e); return { data: "" }; }) // Get Financial Page Text
+            axios.get(`/.netlify/functions/getNews?url=${encodeURIComponent('https://news.google.com/rss/search?q=군산&hl=ko&gl=KR&ceid=KR:ko')}`).catch(() => ({ data: "" }))
         ]);
 
         // 2. Process Data
         const krwRate = exchangeRes.data.rates.KRW;
-
-        // Clean up financial HTML to just text to save tokens
-        const finText = typeof finRes.data === 'string' ? finRes.data.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').slice(0, 10000) : "";
 
         const krNews = parseRSS(krRes.data, 10).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
         const jbNews = parseRSS(jbRes.data, 5).map(n => `- ${n.title} (링크: ${n.link})`).join("\n");
@@ -49,14 +45,13 @@ export const generateDailyBriefing = async (): Promise<string> => {
         const now = new Date();
         const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
-        // 3. Construct Prompt with User requests
+        // 3. Construct Prompt (Simplified & Stable)
         const prompt = `
     당신은 전문 뉴스 큐레이터입니다. 아래 데이터를 바탕으로 "오늘 주요 브리핑"을 작성해주세요.
     
     **데이터:**
     - 날짜: ${dateStr}
-    - 기본 환율(API): ${krwRate}원/달러
-    - **네이버 증권 페이지 텍스트(참고용)**: ${finText}
+    - 환율: ${krwRate}원/달러
     
     [한국뉴스 데이터]
     ${krNews}
@@ -70,12 +65,8 @@ export const generateDailyBriefing = async (): Promise<string> => {
     **작성 규칙 (필수):**
     1. **제목**: "## 📰 오늘 주요 브리핑" (H2 태그).
     2. **1. 오늘의 기본 정보**: 날짜, 음력(오늘 기준 계산), 역사 속 오늘(12.27 사건 2개).
-    3. **2. 주요 경제 지표** (제공된 네이버 증권 텍스트에서 KOSPI, KOSDAQ, WTI, 금리 등을 찾아 아래 형식으로 작성. 못 찾으면 '확인 불가'로 표시):
-       - **환율**: 1,XXX.xx원 (전일 대비 변동폭) (API 값보다 텍스트 내 최신 값을 우선할 것)
-       - **KOSPI**: X,XXX.xx (전일 대비 변동폭)
-       - **KOSDAQ**: XXX.xx (전일 대비 변동폭)
-       - **금리 (국고채 3년)**: X.XX%
-       - **국제유가 (WTI)**: $XX.XX (배럴당)
+    3. **2. 경제 지표**:
+       - 환율 정보만 간단히 표시 (예: 원/달러 환율: XXX원).
        
     4. **3. 뉴스 스크랩**: 카테고리별로 제목 나열. **반드시 원본 기사 링크 포함**.
        - 형식: "- [기사 제목](기사 원본 링크)"
@@ -84,10 +75,9 @@ export const generateDailyBriefing = async (): Promise<string> => {
        - ### 군산 주요 뉴스
     5. **스타일**:
        - 섹션 간 구분선(---) 사용.
-       - **날씨 정보는 제외할 것.**
-       - 불필요한 빈 줄을 줄여서 좀 더 컴팩트하게 작성할 것 (경제지표와 뉴스 사이 간격 너무 넓지 않게).
+       - **날씨 정보는 절대 넣지 말 것.**
+       - 불필요한 빈 줄을 줄여서 좀 더 컴팩트하게 작성할 것.
        - 중요 키워드는 **볼드** 처리.
-       - 각 섹션 사이에는 구분선(---) 하나만 넣을 것.
     `;
 
         // 4. Call Gemini with Fallback Models
