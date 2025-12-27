@@ -81,10 +81,9 @@ export const generateDailyBriefing = async (): Promise<string> => {
 
         // 4. Call Gemini with Fallback Models
         const modelsToTry = [
-            "gemini-1.5-flash",
             "gemini-2.0-flash",
-            "gemini-2.0-flash-exp",
             "gemini-flash-latest",
+            "gemini-2.0-flash-exp",
             "gemini-pro-latest"
         ];
 
