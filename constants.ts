@@ -138,8 +138,8 @@ export const NEWS_CATEGORIES = [
       {
         title: '전북권 영상 News',
         links: [
-          { name: '금강방송', url: 'https://www.youtube.com/results?search_query=mbn' }, // User source check: mbn? Seems wrong but keeping user input
-          { name: 'kbs 전주', url: 'https://www.youtube.com/results?search_query=mbn' }, // User source check: mbn?
+          { name: '금강방송', url: 'https://www.youtube.com/@kcn_official/videos' },
+          { name: 'kbs 전주', url: 'https://www.youtube.com/c/KBS뉴스전북/videos' },
           { name: '전주 mbc', url: 'https://www.youtube.com/channel/UCRA5hbjN2NDxzNxXZkOAmKg/videos' },
           { name: 'JTV 전주', url: 'https://www.youtube.com/c/전주방송JTV/videos' }
         ]
