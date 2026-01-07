@@ -116,114 +116,152 @@ const App: React.FC = () => {
     switch (activeTab) {
       case AppTab.HOME:
         return (
-          <div className="p-4 space-y-6 pb-20 flex flex-col min-h-[80vh]">
-
-            {/* Landing Page Slogan / Hero */}
-            <div className="mt-4 mb-2 animate-[fadeIn_0.5s_ease-out]">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-3xl font-extrabold text-gray-900 leading-tight">
-                  군산 시민과 함께 만드는<br />
-                  <span className="text-blue-600">오늘 이야기</span>
-                </h2>
-                <button
-                  onClick={handleShare}
-                  className="bg-blue-50 text-blue-600 p-3 rounded-full hover:bg-blue-100 transition-colors active:scale-95 shadow-sm border border-blue-100"
-                  aria-label="친구에게 공유하기"
-                >
-                  <Share2 size={20} />
-                </button>
-              </div>
-              <p className="text-sm font-medium text-gray-500 mt-2">
-                뉴스·날씨·행사정보 오늘 필요한 정보를 확인하세요
-              </p>
-            </div>
-
-            {/* Daily Briefing Card */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-blue-50 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100 rounded-full -mr-8 -mt-8 opacity-50 blur-xl group-hover:scale-110 transition-transform"></div>
+          <div className="relative min-h-[90vh]">
+            {/* Gradient Background Header */}
+            <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 px-5 pt-6 pb-20 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+              {/* Decorative circles */}
+              <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+              <div className="absolute -bottom-10 left-5 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+              
               <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-blue-100 text-blue-600 p-1.5 rounded-lg">
-                    <Bell size={16} />
-                  </span>
-                  <h2 className="font-bold text-gray-800">오늘의 한마디</h2>
+                {/* Hero Section */}
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
+                      <span className="text-white/90 text-xs font-semibold tracking-wide">LIVE UPDATE</span>
+                    </div>
+                    <h1 className="text-3xl font-black text-white leading-tight mb-1">
+                      안녕하세요,<br />
+                      <span className="text-yellow-300">군산시민</span> 여러분 👋
+                    </h1>
+                    <p className="text-blue-100 text-sm font-medium">
+                      오늘도 함께 만들어가요
+                    </p>
+                  </div>
                   <button
-                    onClick={() => setShowBriefingModal(true)}
-                    className="ml-auto text-xs bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-bold hover:bg-blue-100 transition-colors active:scale-95"
+                    onClick={handleShare}
+                    className="bg-white/20 backdrop-blur-md text-white p-3 rounded-2xl hover:bg-white/30 transition-all active:scale-95 shadow-lg border border-white/30"
+                    aria-label="친구에게 공유하기"
                   >
-                    다시 보기
+                    <Share2 size={20} strokeWidth={2.5} />
                   </button>
                 </div>
-                <p className="text-gray-600 leading-relaxed text-[15px] font-medium whitespace-pre-line line-clamp-3">
-                  "{briefing}"
+
+                {/* Daily Briefing Card - Floating Style */}
+                <div className="bg-white/95 backdrop-blur-md rounded-3xl p-5 shadow-2xl border border-white/50 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-200 to-orange-200 rounded-full -mr-10 -mt-10 opacity-30 blur-2xl"></div>
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-2 rounded-xl shadow-lg">
+                        <Bell size={16} className="text-white" strokeWidth={2.5} />
+                      </div>
+                      <h2 className="font-extrabold text-gray-800 text-base">오늘의 브리핑</h2>
+                      <button
+                        onClick={() => setShowBriefingModal(true)}
+                        className="ml-auto text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1.5 rounded-full font-bold hover:shadow-lg transition-all active:scale-95"
+                      >
+                        전체보기
+                      </button>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed text-sm font-medium whitespace-pre-line line-clamp-2">
+                      {briefing}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content - Overlapping Cards */}
+            <div className="px-5 -mt-12 pb-24 space-y-5">
+              {/* Quick Access Title */}
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-extrabold text-gray-800">빠른 메뉴</h3>
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-300 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-200 rounded-full"></div>
+                </div>
+              </div>
+
+              {/* Navigation Grid - Enhanced Cards */}
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setActiveTab(AppTab.NEWS)}
+                  className="group bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all active:scale-[0.97] text-left flex flex-col justify-between h-40 relative overflow-hidden"
+                >
+                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform"></div>
+                  <div className="relative z-10">
+                    <div className="bg-white/20 backdrop-blur-sm w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg">
+                      <Newspaper size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <span className="block font-black text-white text-xl mb-1">오늘의 뉴스</span>
+                      <span className="text-xs text-blue-100 font-semibold">실시간 지역 소식</span>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab(AppTab.WEATHER)}
+                  className="group bg-gradient-to-br from-orange-400 to-orange-500 p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all active:scale-[0.97] text-left flex flex-col justify-between h-40 relative overflow-hidden"
+                >
+                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform"></div>
+                  <div className="relative z-10">
+                    <div className="bg-white/20 backdrop-blur-sm w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg">
+                      <Sun size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <span className="block font-black text-white text-xl mb-1">날씨 & 물때</span>
+                      <span className="text-xs text-orange-100 font-semibold">실시간 기상정보</span>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab(AppTab.INFO)}
+                  className="group bg-gradient-to-br from-cyan-500 to-teal-500 p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all active:scale-[0.97] text-left flex flex-col justify-between h-40 relative overflow-hidden"
+                >
+                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform"></div>
+                  <div className="relative z-10">
+                    <div className="bg-white/20 backdrop-blur-sm w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg">
+                      <Anchor size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <span className="block font-black text-white text-xl mb-1">생활정보</span>
+                      <span className="text-xs text-cyan-100 font-semibold">긴급전화 & 꿀팁</span>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab(AppTab.CHAT)}
+                  className="group bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all active:scale-[0.97] text-left flex flex-col justify-between h-40 relative overflow-hidden"
+                >
+                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform"></div>
+                  <div className="relative z-10">
+                    <div className="bg-white/20 backdrop-blur-sm w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg">
+                      <MessageCircle size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <span className="block font-black text-white text-xl mb-1">AI 비서</span>
+                      <span className="text-xs text-purple-100 font-semibold">궁금한 건 물어보세요</span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <InstallPWA />
+
+              {/* Footer */}
+              <div className="pt-6 text-center">
+                <p className="text-[10px] text-gray-400 leading-relaxed">
+                  © 2025 Gunsan Life · AI 기반 실시간 정보 서비스<br />
+                  <span className="text-[9px]">제공되는 정보는 AI 분석 결과로 실제와 다를 수 있습니다</span>
                 </p>
               </div>
             </div>
-
-            {/* Navigation Grid */}
-            <div className="grid grid-cols-2 gap-4 mt-2">
-              <button
-                onClick={() => setActiveTab(AppTab.NEWS)}
-                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all active:scale-[0.95] text-left flex flex-col justify-between h-32"
-              >
-                <div className="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center text-blue-600 mb-2">
-                  <Newspaper size={20} />
-                </div>
-                <div>
-                  <span className="block font-bold text-gray-800 text-lg">오늘의 뉴스</span>
-                  <span className="text-xs text-gray-500">실시간 지역 뉴스</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab(AppTab.WEATHER)}
-                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-all active:scale-[0.95] text-left flex flex-col justify-between h-32"
-              >
-                <div className="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center text-orange-600 mb-2">
-                  <Sun size={20} />
-                </div>
-                <div>
-                  <span className="block font-bold text-gray-800 text-lg">날씨 & 물때</span>
-                  <span className="text-xs text-gray-500">실시간 기상 특보</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab(AppTab.INFO)}
-                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-cyan-200 hover:bg-cyan-50 transition-all active:scale-[0.95] text-left flex flex-col justify-between h-32"
-              >
-                <div className="bg-cyan-100 w-10 h-10 rounded-full flex items-center justify-center text-cyan-600 mb-2">
-                  <Anchor size={20} />
-                </div>
-                <div>
-                  <span className="block font-bold text-gray-800 text-lg">생활/긴급</span>
-                  <span className="text-xs text-gray-500">긴급전화 및 꿀팁</span>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab(AppTab.CHAT)}
-                className="bg-gray-900 p-5 rounded-2xl shadow-lg border border-gray-800 hover:bg-gray-800 transition-all active:scale-[0.95] text-left flex flex-col justify-between h-32"
-              >
-                <div className="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center text-white mb-2">
-                  <MessageCircle size={20} />
-                </div>
-                <div>
-                  <span className="block font-bold text-white text-lg">AI 비서</span>
-                  <span className="text-xs text-gray-400">무엇이든 물어보세요</span>
-                </div>
-              </button>
-            </div>
-
-            <InstallPWA />
-
-            <div className="mt-auto pt-8 text-center pb-4">
-              <p className="text-[10px] text-gray-400">
-                © 2024 Gunsan Life. AI Real-time Update.<br />
-                제공되는 정보는 AI가 검색한 결과로 실제와 다를 수 있습니다.
-              </p>
-            </div>
-          </div >
+          </div>
         );
       case AppTab.NEWS:
         return <NewsFeed />;
