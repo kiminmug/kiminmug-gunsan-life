@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "25807562095",
+    "project_id": "gunsan-life",
+    "storage_bucket": "gunsan-life.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25807562095:android:e8dee7b20c486f31b6b49a",
+        "android_client_info": {
+          "package_name": "com.gunsan.gunsan_life"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEjIF7u47lYLxTsrEJiIlB9dLqI9elB44"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

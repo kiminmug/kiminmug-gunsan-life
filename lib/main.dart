@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'config/theme.dart';
 import 'providers/app_provider.dart';
 import 'screens/home/home_screen.dart';
@@ -12,6 +15,20 @@ import 'screens/ai_chat/ai_chat_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    if (kDebugMode) {
+      print('✅ Firebase initialized successfully');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Firebase initialization failed: $e');
+    }
+  }
   
   // Initialize Hive for local storage
   await Hive.initFlutter();
